@@ -2,6 +2,7 @@
 # VK API: v5.110+
 from flask import Flask, request, json
 from utility import *
+import DenshoBato_MessageHandler as messageHandler
 import vk
 import random
 
@@ -42,16 +43,7 @@ def processing():
                     log_type="Important")
         return CONFIRMATION_TOKEN
     elif data['type'] == 'message_new':
-        session = vk.Session()
-        api = vk.API(session, v='5.110')
         msg = data['object']['message']
-        user_id = msg['from_id']
-
-        # log
         console_log({"what": "Got a message! Info below:", "info": format_msg_log(msg)}, log_type="Event")
-
-        api.messages.send(access_token=ACCESS_TOKEN, user_id=str(user_id),
-                          message='Привет, я Бато, цифровой почтовый голубь. А ты - @id' + str(user_id) + ', верно?',
-                          random_id=random.getrandbits(64))
-        # Сообщение о том, что обработка прошла успешно
+        messageHandler.create_answer(msg, ACCESS_TOKEN)
         return 'ok'
