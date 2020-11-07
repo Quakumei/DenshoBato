@@ -1,10 +1,8 @@
 # DenshoBato bot
 # VK API: v5.110+
 from flask import Flask, request, json
-from utility import *
-import DenshoBato_MessageHandler as messageHandler
-import vk
-import random
+from KolobokAPI.utility import *
+from KolobokAPI import DenshoBato_MessageHandler as messageHandler
 
 app = Flask(__name__)
 

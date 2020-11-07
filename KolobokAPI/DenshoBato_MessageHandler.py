@@ -1,4 +1,4 @@
-import vkapi
+from KolobokAPI import vkapi
 
 
 def get_answer(body, user_id):
