@@ -34,8 +34,6 @@ class DBWorker:
         self.conAlias.commit()
 
     def add_school(self, school_name, admin_id):
-        # TODO: Сделать проверку на существование таких же школ
-        # TODO: Добавить обработчик имени заведения для избегания крашей
         self.curAlias.execute("""INSERT INTO main.ALIASES VALUES (
                                     ?,
                                     ?
