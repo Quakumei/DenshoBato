@@ -82,7 +82,7 @@ vk = vk_api.VkApi(token=token)
 # db.add_person(TEST_SCHOOL, MY_ID, SUBSCRIBER_TAG, GROUP_NAME)
 # db.add_person(TEST_SCHOOL, MY_TWIN_ID, SUBSCRIBER_TAG, GROUP_NAME)
 # db.commit_all()
-mass_mailing(TEST_SCHOOL, (GROUP_NAME,), "ДАРОВА ЧО КАК НАСТРОЕНИЕ")
+# mass_mailing(TEST_SCHOOL, (GROUP_NAME,), "ДАРОВА ЧО КАК НАСТРОЕНИЕ")
 #
 #
 

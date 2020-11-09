@@ -2,6 +2,7 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from datetime import datetime
 from time import gmtime, strftime
+import DenshoBatoAPI
 
 # for random_id
 import random
@@ -47,9 +48,14 @@ for event in longpoll.listen():
             else:
                 response = "Не поняла вашего ответа..."
 
+            # Fun happening
+            response = "Эхо отразилось от стен..."
+
             # Ещё немного логов...
-            print("="*15)
+            print("=" * 15)
             print(response)
 
             # И, собственно ответ.
             write_msg(event.user_id, response)
+            DenshoBatoAPI.mass_mailing(DenshoBatoAPI.TEST_SCHOOL, (DenshoBatoAPI.GROUP_NAME,),
+                                       request)
