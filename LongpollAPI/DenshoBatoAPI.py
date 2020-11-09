@@ -52,7 +52,12 @@ def delete_by_id(school_title, person_id):
 #  Sending messages
 #
 def write_msg(user_id, message, attachment=None):
-    vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': random.getrandbits(64)})
+    try:
+        vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': random.getrandbits(64)})
+    except vk_api.exceptions.ApiError as e:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(e).__name__, e.args)
+        print(message)
 
 
 def mass_mailing(school, groups, message):

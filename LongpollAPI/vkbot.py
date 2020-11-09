@@ -57,5 +57,5 @@ for event in longpoll.listen():
 
             # И, собственно ответ.
             write_msg(event.user_id, response)
-            DenshoBatoAPI.mass_mailing(DenshoBatoAPI.TEST_SCHOOL, (DenshoBatoAPI.GROUP_NAME,),
-                                       request)
+            DenshoBatoAPI.mass_mailing(DenshoBatoAPI.TEST_SCHOOL, (DenshoBatoAPI.GROUP_NAME,), request)
+
