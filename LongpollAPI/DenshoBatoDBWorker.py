@@ -38,19 +38,27 @@ class DBWorker:
                                     ?,
                                     ?
                                     );""", (school_name, admin_id))
-        self.curSchools.execute("""CREATE TABLE IF NOT EXISTS main.""" + school_name + """ (
+        self.curSchools.execute("""CREATE TABLE IF NOT EXISTS main.""" + school_name + """_STATUS (
                                       USER_ID INTEGER NOT NULL,
-                                      NAME TEXT NOT NULL,
                                       STATUS TEXT NOT NULL,
-                                      CLASS TEXT,
-                                      PASSWORD TEXT NOT NULL
+                                      CLASS TEXT
                                       );""")
-        self.add_person(school_name, admin_id, "Admin_Name", "ADMIN", "SPACES AND CABLES", "passw0rd")
-        
-    def add_person(self, school_name, user_id, name, status, class_name, password):
-        self.curSchools.execute("""INSERT INTO main.""" + school_name + """ VALUES (
+        # self.curSchools.execute("""CREATE TABLE IF NOT EXISTS main.""" + school_name + """_PASSWORDS (
+        #                                       USER_ID INTEGER NOT NULL,
+        #                                       PASS TEXT NOT NULL
+        #                                       );""")
+        # self.curSchools.execute("""CREATE TABLE IF NOT EXISTS main.""" + school_name + """_INFO (
+        #                                               USER_ID INTEGER NOT NULL,
+        #                                               NAME TEXT NOT NULL
+        #                                               );""")
+        self.add_person(school_name, admin_id, "ADMIN", "No_class")
+
+    def add_person(self, school_name, user_id, status, class_name):
+        self.curSchools.execute("""INSERT INTO main.""" + school_name + """_STATUS VALUES (
                                      ?,
                                      ?,
-                                     ?,
-                                     ?,
-                                     ? );""", (user_id, name, status, class_name, password))
+                                     ? );""", (user_id, status, class_name))
+
+    def delete_by_id(self, school_name, user_id):
+        self.curSchools.execute("""DELETE FROM main.""" + school_name + """_STATUS
+                                   WHERE user_id = """ + str(user_id) + """;""")
