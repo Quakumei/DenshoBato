@@ -1,15 +1,18 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
+from datetime import datetime
+from time import gmtime, strftime
 
 # for random_id
 import random
 
 
 def write_msg(user_id, message):
-    vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id':random.getrandbits(64)})
+    vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': random.getrandbits(64)})
 
 
 # API-token for working with messages
+# TODO: Вынести токен отсюда нафиг
 token = '1db3d674ad5402cc10dc136734302e1ea6268510cce9842a0ee9c75124f4c955ea1aeea1d33528cdf9589'
 
 # Authorize as community
@@ -25,10 +28,28 @@ for event in longpoll.listen():
 
         if event.to_me:
             # Message from user
+
+            # Логируем...
+            print("\nGot Event!")
+            print(str(datetime.utcfromtimestamp(event.timestamp).strftime('%H:%M:%S %Y-%m-%d')))
+            print(event.type)
+            print("@id" + str(event.user_id) + ":")
+            print(event.text)
+
+            # Отвечаем...
+            # TODO: Сделать диалог с пользователем
+            # TODO: Добавить кнопки (способности)
             request = event.text
             if request == 'привет':
-                write_msg(event.user_id, "Хай")
+                response = "Хай"
             elif request == 'пока':
-                write_msg(event.user_id, 'Пока((')
+                response = 'Пока(('
             else:
-                write_msg(event.user_id, "Не поняла вашего ответа...")
+                response = "Не поняла вашего ответа..."
+
+            # Ещё немного логов...
+            print("="*15)
+            print(response)
+
+            # И, собственно ответ.
+            write_msg(event.user_id, response)
