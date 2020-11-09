@@ -41,7 +41,7 @@ class DBWorker:
         self.curSchools.execute("""CREATE TABLE IF NOT EXISTS main.""" + school_name + """_STATUS (
                                       USER_ID INTEGER NOT NULL,
                                       STATUS TEXT NOT NULL,
-                                      CLASS TEXT
+                                      TAG TEXT NOT NULL
                                       );""")
         # self.curSchools.execute("""CREATE TABLE IF NOT EXISTS main.""" + school_name + """_PASSWORDS (
         #                                       USER_ID INTEGER NOT NULL,
@@ -62,3 +62,21 @@ class DBWorker:
     def delete_by_id(self, school_name, user_id):
         self.curSchools.execute("""DELETE FROM main.""" + school_name + """_STATUS
                                    WHERE user_id = """ + str(user_id) + """;""")
+
+    def fetch_ids_by_groups(self, school_name, groups):
+        res = []
+        for g in groups:
+            self.curSchools.execute("""SELECT USER_ID FROM main.""" + school_name + """_STATUS"""
+                                    + """ WHERE TAG='""" + str(g) + """';""")
+            res.extend(self.curSchools.fetchall())
+
+        # Kill duplicates
+        res.sort()
+
+        i = 0
+        while i < len(res) - 1:
+            while i < len(res) - 1 and res[i] == res[i + 1]:
+                res.pop(i)
+            i += 1
+
+        return res
