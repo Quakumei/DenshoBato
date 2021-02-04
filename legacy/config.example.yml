@@ -1,0 +1,9 @@
+prefixes: ['.', '!', '/']
+language: ru
+backends:
+  - kind: vk
+    token: <token-for-vk-here>
+storages:
+  - name: default
+    kind: sqlite
+    path: kutana.sqlite3
