@@ -91,6 +91,16 @@ def user_add_attribute(user_id, group_id, role, con=sql_connection()):
     return 0
 
 
+def fetch_pupils(school_name):
+    cursorObj = con.cursor()
+    cmd = "SELECT * FROM users WHERE group_id=\"" + str(school_name) + "\""
+    response = cursorObj.execute(cmd).fetchall()
+    if DEBUG_FLAG:
+        print(cmd)
+        print(response)
+    return 0, response
+
+
 def fetch_all_schools(con=sql_connection()):
     try:
         cursorObj = con.cursor()

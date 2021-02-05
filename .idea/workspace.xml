@@ -2,14 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="48a1894c-c775-414e-9282-a74a265bdc88" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/beautify.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/legacy/config.example.yml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/legacy/config.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/legacy/kutana.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mydatabase.db" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/shnek.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/source.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KolobokAPI/DenshoBato_CallbackAPIServer.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/KolobokAPI/DenshoBato_MessageHandler.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/KolobokAPI/LICENSE" beforeDir="false" />
@@ -25,6 +22,10 @@
       <change beforePath="$PROJECT_DIR$/LongpollAPI/vkbot.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/TEst/Chinook_Sqlite.sqlite" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/TEst/sql_attempt.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/beautify.py" beforeDir="false" afterPath="$PROJECT_DIR$/beautify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mydatabase.db" beforeDir="false" afterPath="$PROJECT_DIR$/mydatabase.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source.py" beforeDir="false" afterPath="$PROJECT_DIR$/source.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
