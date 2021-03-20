@@ -1,10 +1,8 @@
-import os
 from random import randint
 from requests import *
 import vk
 import db
 import beautify
-import sys
 
 # Всякие вкусности букв
 GROUPSEND_WORD = 'групрас'
