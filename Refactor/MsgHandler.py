@@ -4,6 +4,7 @@
 import CodeList
 import Utility
 
+
 class MsgHandler:
     def __init__(self, code_dict, command_symbol, action_handler, debug=True):
         self.debug = debug
@@ -30,14 +31,12 @@ class MsgHandler:
                 if key == code:
 
                     # Check if it is good to go
-                    if key == CodeList.CODE.CREATE_SCHOOL:
+                    if value == CodeList.CODE.CREATE_SCHOOL:
                         school_name = Utility.parse_arg(msg)
-                        if not school_name:
+                        if school_name is False:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     self.action_handler.handle_act(value, update)
                     return
         # Not a command.
         self.action_handler.handle_act(CodeList.CODE.INVALID, update)
-
-
