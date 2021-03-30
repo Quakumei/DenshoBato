@@ -2,6 +2,7 @@
 from CodeList import *
 import Utility
 
+
 class ActionHandler:
     def __init__(self, vkapi_handler, role_handler, db_handler, debug_mode=True):
         self.debug_mode = debug_mode
@@ -17,7 +18,8 @@ class ActionHandler:
             CODE.HELP: self.help,
             CODE.ECHO: self.echo,
             CODE.CREATE_SCHOOL: self.create_school,
-            CODE.INVALID: self.invalid
+            CODE.INVALID: self.invalid,
+            CODE.REGISTER: self.register
         }
 
     def handle_act(self, code, update):
@@ -33,7 +35,7 @@ class ActionHandler:
         user_id = update['object']['from_id']
         with open("help.txt") as help_file:
             msg = help_file.read()
-        #msg = "".join(msg) # % (HELP_WORD, DEBUG_WORD, CREATE_SCHOOL_WORD, ADD_WORD, WHOIN_WORD, GROUPSEND_WORD)
+        # msg = "".join(msg) # % (HELP_WORD, DEBUG_WORD, CREATE_SCHOOL_WORD, ADD_WORD, WHOIN_WORD, GROUPSEND_WORD)
         self.vkapi_handler.send_msg(user_id, msg)
         # Help info
         pass
@@ -56,14 +58,28 @@ class ActionHandler:
         # Remove trailing backspace and parse school_name
         school_name = " ".join(Utility.parse_arg(msg))
 
-        self.db_handler.create_school(school_name, user_id)
+        school_id = self.db_handler.create_school(school_name, user_id)
+        if school_id == -1:
+            err = f"Вы не зарегистрированы в системе. Напишите !{'рег'} [Имя_пользователя] для регистрации."
+            self.vkapi_handler.send_msg(user_id, err)
+        else:
+            txt = f"Поздравляем, вы создали школу {school_name}!\nЕй присвоен идентификатор - {school_id}."
+            self.vkapi_handler.send_msg(user_id, txt)
 
-        # # Maybe use later
-        # code = self.db_handler.create_school(school_name, user_id)
+    def register(self, update):
+        # Add vk_id - Name to database (or update it)
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
 
+        nickname = " ".join(Utility.parse_arg(msg))
 
-
-
+        resp = self.db_handler.user_nickname_update(user_id, nickname)
+        if resp != -1:
+            txt = f"Вы успешно установили себе имя {nickname}."
+            self.vkapi_handler.send_msg(user_id, txt)
+        else:
+            err = f"Что-то пошло не так при регистрации..."
+            self.vkapi_handler.send_msg(user_id, err)
 
 
     def invalid(self, update):

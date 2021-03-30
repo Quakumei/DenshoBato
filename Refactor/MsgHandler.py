@@ -31,9 +31,9 @@ class MsgHandler:
                 if key == code:
 
                     # Check if it is good to go
-                    if value == CodeList.CODE.CREATE_SCHOOL:
-                        school_name = Utility.parse_arg(msg)
-                        if school_name is False:
+                    if value == CodeList.CODE.CREATE_SCHOOL or CodeList.CODE.REGISTER:
+                        name = Utility.parse_arg(msg)
+                        if name is False:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     self.action_handler.handle_act(value, update)

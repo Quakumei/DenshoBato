@@ -4,4 +4,5 @@ class CODE:
     ECHO = 2
     CREATE_SCHOOL = 3
     INVALID = 4
+    REGISTER = 5
 

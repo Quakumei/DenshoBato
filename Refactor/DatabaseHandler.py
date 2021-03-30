@@ -55,22 +55,46 @@ class DatabaseHandler:
         print(f"Adding school {school_name} for {creator_vk_id}...")
 
         # Add school to schools table
-        cmd1 = f"INSERT INTO schools (creator_vk_id, school_name) VALUES ({creator_vk_id},{school_name})"
+        cmd1 = f"INSERT INTO schools (creator_vk_id, school_name) VALUES ({creator_vk_id},\"{school_name}\")"
         self.cursor.execute(cmd1)
 
         # Fetch new school's id
-        cmd2 = f"SELECT school_id FROM schools WHERE school_name LIKE {school_name} AND creator_vk_id LIKE {creator_vk_id}"
+        cmd2 = f"SELECT school_id FROM schools WHERE school_name LIKE \"{school_name}\" AND creator_vk_id LIKE {creator_vk_id}"
         self.cursor.execute(cmd2)
         resp = self.cursor.fetchall()
         print(f"DB response is: '{resp}'")
-        school_id = resp[-1]
-        print(f"New school id is [{school_id}]")
+        school_id = resp[-1][0]
+        print(f"New school id is {school_id}")
 
         # Give the creator the role of creator of the school
-        cmd3 = f"INSERT INTO roles_membership (vk_id,role_id,school_id) VALUES ({creator_vk_id},{1},{school_id})"  # TODO: ROLE HERE
-        self.cursor.execute(cmd3)
+        cmd3 = f"INSERT INTO roles_membership (vk_id, role_id, school_id) VALUES ({creator_vk_id}, {1}, {school_id})"
+        try:
+            self.cursor.execute(cmd3)
+        except sqlite3.IntegrityError:
+            # May cause problems with hyperthreading stuff
+            self.connection.rollback()
+            return -1
+
+        # Commit changes to the db
+        self.connection.commit()
 
         return school_id
+
+    def user_nickname_update(self, vk_id, nickname):
+        # Updates persons nickname if vk_id is here, creates an entry otherwise
+        cmd1 = f"SELECT vk_id FROM users WHERE vk_id LIKE {vk_id}"
+        self.cursor.execute(cmd1)
+        results = self.cursor.fetchall()
+        print(results)
+        if not results:
+            cmd2 = f"INSERT INTO users (vk_id, nickname) VALUES ({vk_id},'{nickname}')"
+            self.cursor.execute(cmd2)
+            self.connection.commit()
+        else:
+            cmd2 = f"UPDATE users SET nickname='{nickname}' WHERE vk_id={vk_id}"
+            self.cursor.execute(cmd2)
+            self.connection.commit()
+        return True
 
     def fetch_members(self, school_name):
         # Returns list of vk_id of people of the school_name school

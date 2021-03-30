@@ -19,11 +19,14 @@ COMMAND_SYMBOL = "!"
 DEBUG_WORD = "дебаг"
 HELP_WORD = "помощь"
 CREATE_SCHOOL_WORD = "создать_школу"
+REGISTER_WORD = "рег"
+# TODO: Registration process: !рег Имя пользователя
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    REGISTER_WORD: CODE.REGISTER,
     HELP_WORD: CODE.HELP,
     DEBUG_WORD: CODE.DEBUG,
     CREATE_SCHOOL_WORD: CODE.CREATE_SCHOOL
