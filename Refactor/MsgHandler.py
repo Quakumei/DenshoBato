@@ -2,6 +2,7 @@
 # Словарь с функциями
 
 import CodeList
+import Utility
 
 class MsgHandler:
     def __init__(self, code_dict, command_symbol, action_handler, debug=True):
@@ -27,9 +28,17 @@ class MsgHandler:
             # Handle command
             for (key, value) in self.code_dict.items():
                 if key == code:
-                    self.action_handler.handle_act(value, update)
 
+                    # Check if it is good to go
+                    if key == code.CREATE_SCHOOL:
+                        school_name = Utility.parse_arg(msg)
+                        if not school_name:
+                            self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+                            return
+                    self.action_handler.handle_act(value, update)
                     break
         else:
             # Not a command.
-            self.action_handler.handle_act(CodeList.CODE.ECHO, update)
+            self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+
+
