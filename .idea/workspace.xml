@@ -2,30 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="48a1894c-c775-414e-9282-a74a265bdc88" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/legacy/config.example.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/legacy/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/legacy/kutana.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shnek.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DenshoBato.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DenshoBato.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/DenshoBato_CallbackAPIServer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/DenshoBato_MessageHandler.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/RunCallbackAPIServer.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/pigeon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/utility.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KolobokAPI/vkapi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LongpollAPI/DenshoBatoAPI.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LongpollAPI/DenshoBatoDBAlias.sqlite" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LongpollAPI/DenshoBatoDBSchools.sqlite" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LongpollAPI/DenshoBatoDBWorker.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LongpollAPI/vkbot.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEst/Chinook_Sqlite.sqlite" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEst/sql_attempt.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/beautify.py" beforeDir="false" afterPath="$PROJECT_DIR$/beautify.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mydatabase.db" beforeDir="false" afterPath="$PROJECT_DIR$/mydatabase.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source.py" beforeDir="false" afterPath="$PROJECT_DIR$/source.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/ActionHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/ActionHandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/MsgHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/MsgHandler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,13 +39,18 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Refactor" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Refactor" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Legacybutnewer" />
       <recent name="C:\Users\admin\Documents\GitHub\DenshoBato\legacy" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.source">
+  <component name="RunManager" selected="Python.main">
     <configuration name="Unnamed" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="DenshoBato" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -86,6 +72,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Utility" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="DenshoBato" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Refactor" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Refactor/Utility.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="db" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="DenshoBato" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -98,7 +105,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/db.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Legacybutnewer/db.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -128,6 +135,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="DenshoBato" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.8" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Refactor" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Refactor/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="source" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="DenshoBato" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -135,12 +163,12 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="/usr/bin/python3.8" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Legacybutnewer/source.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -151,12 +179,16 @@
     </configuration>
     <list>
       <item itemvalue="Python.Unnamed" />
-      <item itemvalue="Python.kutana" />
-      <item itemvalue="Python.source" />
       <item itemvalue="Python.db" />
+      <item itemvalue="Python.kutana" />
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.source" />
+      <item itemvalue="Python.Utility" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.Utility" />
         <item itemvalue="Python.source" />
         <item itemvalue="Python.db" />
         <item itemvalue="Python.kutana" />
@@ -184,5 +216,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

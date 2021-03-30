@@ -35,7 +35,7 @@ role_handler = RoleHandler()
 db_handler = DatabaseHandler(DB_NAME)
 
 vkapi = VkApiHandler(ACCESS_TOKEN, API_VERSION, GROUP_ID, debug=True)
-act_handler = ActionHandler(vkapi, role_handler, db_handler , debug=True)
+act_handler = ActionHandler(vkapi, role_handler, db_handler , debug_mode=True)
 msg_handler = MsgHandler(CODE_DICT, COMMAND_SYMBOL, act_handler)
 vkapi.setMsgHandler(msg_handler)
 vkapi.main_loop()

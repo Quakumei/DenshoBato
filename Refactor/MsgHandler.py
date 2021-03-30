@@ -26,11 +26,12 @@ class MsgHandler:
         if msg and msg[0] is self.command_symbol:
             code = msg.split(' ', 1)[0][1:]
             # Handle command
+            print(self.code_dict.items())
             for (key, value) in self.code_dict.items():
                 if key == code:
 
                     # Check if it is good to go
-                    if key == code.CREATE_SCHOOL:
+                    if key == CodeList.CODE.CREATE_SCHOOL:
                         school_name = Utility.parse_arg(msg)
                         if not school_name:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)

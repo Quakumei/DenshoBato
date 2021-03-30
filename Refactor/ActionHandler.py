@@ -3,8 +3,8 @@ from CodeList import *
 import Utility
 
 class ActionHandler:
-    def __init__(self, vkapi_handler, role_handler, db_handler, debug=True):
-        self.debug = debug
+    def __init__(self, vkapi_handler, role_handler, db_handler, debug_mode=True):
+        self.debug_mode = debug_mode
         self.vkapi_handler = vkapi_handler
         self.role_handler = role_handler
         self.db_handler = db_handler
