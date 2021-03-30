@@ -26,7 +26,6 @@ class MsgHandler:
         if msg and msg[0] is self.command_symbol:
             code = msg.split(' ', 1)[0][1:]
             # Handle command
-            print(self.code_dict.items())
             for (key, value) in self.code_dict.items():
                 if key == code:
 
@@ -37,9 +36,8 @@ class MsgHandler:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     self.action_handler.handle_act(value, update)
-                    break
-        else:
-            # Not a command.
-            self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+                    return
+        # Not a command.
+        self.action_handler.handle_act(CodeList.CODE.INVALID, update)
 
 
