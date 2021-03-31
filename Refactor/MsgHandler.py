@@ -37,7 +37,11 @@ class MsgHandler:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     if value == CodeList.CODE.INVITE_USER:
-                        if len(name) != 2:
+                        if len(name) != 2 or not name[0].isnumeric() or not name[1].isnumeric():
+                            self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+                            return
+                    if value == CodeList.CODE.CREATE_GROUP:
+                        if len(name) < 2 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     self.action_handler.handle_act(value, update)

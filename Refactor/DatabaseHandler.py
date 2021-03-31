@@ -134,6 +134,37 @@ class DatabaseHandler:
         except:
             return -1
 
+    def create_group(self, group_name, school_id, user_id):
+        # Create the group and return its group_id
+        # GROUPS WITH SAME SCHOOL_ID AND GROUP_NAME ARE PROHIBITED
+
+        # Check whether the inviter is atleast member of school
+        # TODO: Upgrade that to role check?
+        cmd1 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id} AND school_id LIKE {school_id}"
+        self.cursor.execute(cmd1)
+        res = self.cursor.fetchall()
+        if not res:
+            return -4
+
+        # Check whether there is already group with that name
+        cmd2 = f"SELECT * FROM groups WHERE school_id LIKE {school_id} AND group_name LIKE '{group_name}'"
+        self.cursor.execute(cmd2)
+        res = self.cursor.fetchall()
+        if res:
+            return -5
+
+        # Create group
+        cmd3 = f"INSERT INTO groups (school_id, group_name) VALUES ({school_id}, '{group_name}')"
+        self.cursor.execute(cmd3)
+        self.connection.commit()
+
+        # Fetch its group_id
+        cmd4 = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id} AND group_name LIKE '{group_name}'"
+        self.cursor.execute(cmd4)
+        res = self.cursor.fetchall()
+        group_id = res[0][0]
+        return group_id
+
     def fetch_members(self, school_name):
         # Returns list of vk_id of people of the school_name school
         res = []

@@ -6,4 +6,4 @@ class CODE:
     INVALID = 4
     REGISTER = 5
     INVITE_USER = 6
-
+    CREATE_GROUP = 7

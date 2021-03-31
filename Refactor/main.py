@@ -16,16 +16,19 @@ GROUP_ID = 199935063
 # TODO: Move parameters to config file and load them here
 # Add new words here
 COMMAND_SYMBOL = "!"
-DEBUG_WORD = "дебаг"
-HELP_WORD = "помощь"
-CREATE_SCHOOL_WORD = "создать_школу"
-REGISTER_WORD = "рег"
-INVITE_USER_WORD = "приг"
+DEBUG_WORD = "дебаг" # !дебаг
+HELP_WORD = "помощь" # !помощь
+CREATE_SCHOOL_WORD = "создать_школу" # !создать_школу school_name
+REGISTER_WORD = "рег" # !рег username
+INVITE_USER_WORD = "приг" # !приг vk_id school_id
+CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
+
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    CREATE_GROUP_WORD: CODE.CREATE_GROUP,
     INVITE_USER_WORD: CODE.INVITE_USER,
     REGISTER_WORD: CODE.REGISTER,
     HELP_WORD: CODE.HELP,

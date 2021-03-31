@@ -20,7 +20,8 @@ class ActionHandler:
             CODE.CREATE_SCHOOL: self.create_school,
             CODE.INVALID: self.invalid,
             CODE.REGISTER: self.register,
-            CODE.INVITE_USER: self.invite_user
+            CODE.INVITE_USER: self.invite_user,
+            CODE.CREATE_GROUP: self.create_group
         }
 
     def handle_act(self, code, update):
@@ -111,5 +112,27 @@ class ActionHandler:
             self.vkapi_handler.send_msg(user_id, err)
         else:
             txt = f"Вы успешно пригласили пользователя {vk_id} в {school_id}"
+            self.vkapi_handler.send_msg(user_id, txt)
+
+    def create_group(self, update):
+        # Create group with school_name in school_id. Return user its id.
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
+        group_name = " ".join(args[1:])
+
+        code = self.db_handler.create_group(group_name, school_id, user_id)
+        if code == -4:
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}"
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -1:
+            err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -5:
+            err = f"Ошибка: Группа с таким именем в школе {school_id} уже сущестует..."
+            self.vkapi_handler.send_msg(user_id, err)
+        else:
+            txt = f"Вы успешно создали группу с названием {group_name} в {school_id}. Идентификатор новой группы - {code}."
             self.vkapi_handler.send_msg(user_id, txt)
 
