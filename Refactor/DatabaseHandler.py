@@ -165,6 +165,50 @@ class DatabaseHandler:
         group_id = res[0][0]
         return group_id
 
+    def add_to_group(self, group_id, vk_id, user_id):
+        # Adds vk_id to group_id if user_id has a permission to.
+
+        # Check whether the inviter is atleast member of school
+        # TODO: Upgrade that to role check?
+        try:
+            # Is person even there?
+            cmd1 = f"SELECT * FROM users WHERE vk_id LIKE {vk_id}"
+            self.cursor.execute(cmd1)
+            res = self.cursor.fetchall()
+            if not res:
+                return -3
+
+            # Is group even there? + fetch school_id
+            cmd1 = f"SELECT * FROM groups WHERE group_id LIKE {group_id}"
+            self.cursor.execute(cmd1)
+            res = self.cursor.fetchall()
+            if not res:
+                return -4
+            group_school_id = res[0][1]
+
+            # Is group even in the same school as user_id is?
+            cmd1 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id} AND school_id LIKE {group_school_id}"
+            self.cursor.execute(cmd1)
+            res = self.cursor.fetchall()
+            if not res:
+                return -4
+
+            # Maybe vk_id is already there?
+            cmd2 = f"SELECT * FROM groups_membership WHERE vk_id LIKE {vk_id} AND group_id LIKE {group_id}"
+            self.cursor.execute(cmd2)
+            res = self.cursor.fetchall()
+            if res:
+                return -5
+
+            # Add if everything above is false.
+            cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
+            self.cursor.execute(cmd3)
+            self.connection.commit()
+            return True
+
+        except:
+            return -1
+
     def fetch_members(self, school_name):
         # Returns list of vk_id of people of the school_name school
         res = []

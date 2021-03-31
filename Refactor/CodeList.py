@@ -7,3 +7,4 @@ class CODE:
     REGISTER = 5
     INVITE_USER = 6
     CREATE_GROUP = 7
+    ADD_TO_GROUP = 8

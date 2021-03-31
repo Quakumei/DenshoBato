@@ -32,11 +32,11 @@ class MsgHandler:
 
                     # Check if it is good to go
                     name = Utility.parse_arg(msg)
-                    if value == CodeList.CODE.CREATE_SCHOOL or CodeList.CODE.REGISTER:
+                    if value == CodeList.CODE.CREATE_SCHOOL or value == CodeList.CODE.REGISTER:
                         if name is False:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    if value == CodeList.CODE.INVITE_USER:
+                    if value == CodeList.CODE.INVITE_USER or value == CodeList.CODE.ADD_TO_GROUP:
                         if len(name) != 2 or not name[0].isnumeric() or not name[1].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
