@@ -22,14 +22,15 @@ CREATE_SCHOOL_WORD = "создать_школу" # !создать_школу sc
 REGISTER_WORD = "рег" # !рег username
 INVITE_USER_WORD = "приг" # !приг vk_id school_id
 CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
-ADD_TO_GROUP = "добавить_в_группу" # !добаить_в_группу vk_id group_id
-
+ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
+INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
-    ADD_TO_GROUP: CODE.ADD_TO_GROUP,
+    INFO_SCHOOL_WORD: CODE.INFO_SCHOOL,
+    ADD_TO_GROUP_WORD: CODE.ADD_TO_GROUP,
     CREATE_GROUP_WORD: CODE.CREATE_GROUP,
     INVITE_USER_WORD: CODE.INVITE_USER,
     REGISTER_WORD: CODE.REGISTER,

@@ -8,3 +8,4 @@ class CODE:
     INVITE_USER = 6
     CREATE_GROUP = 7
     ADD_TO_GROUP = 8
+    INFO_SCHOOL = 9

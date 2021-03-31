@@ -205,11 +205,80 @@ class DatabaseHandler:
             self.cursor.execute(cmd3)
             self.connection.commit()
             return True
-
         except:
             return -1
 
-    def fetch_members(self, school_name):
-        # Returns list of vk_id of people of the school_name school
+    # Info parse
+    def fetch_school_name(self, school_id):
+        # Returns school_id school's name
+        cmd = f"SELECT school_name FROM schools WHERE school_id LIKE {school_id}"
+        self.cursor.execute(cmd)
+        res = self.cursor.fetchall()
+        school_name = res[0][0]
+        return school_name
+
+    def fetch_school_members_vk_ids(self, school_id):
+        # Returns list of vk_ids of people of the school_id school
+        cmd = f"SELECT vk_id FROM roles_membership WHERE school_id LIKE {school_id}"
+        self.cursor.execute(cmd)
+        res = self.cursor.fetchall()
+        return [x[0] for x in res]
+
+    def fetch_user_school_groups(self, school_id, vk_id):
+        # Returns list of group_ids of groups of school_id vk_id is in.
+        # 1.) fetch schools group_ids
+        cmd1 = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id}"
+        self.cursor.execute(cmd1)
+        school_groups_ids = [x[0] for x in self.cursor.fetchall()]
+
+        # 2.) fetch groups the person are in
+        cmd2 = f"SELECT group_id FROM groups_membership WHERE vk_id LIKE {vk_id}"
+        self.cursor.execute(cmd2)
+        vk_id_groups_ids = [x[0] for x in self.cursor.fetchall()]
+
+        # 3.) Compare and add
         res = []
+        for group in vk_id_groups_ids:
+            if group in school_groups_ids:
+                res.append(group)
+
         return res
+
+    def fetch_user_school_role(self, school_id, vk_id):
+        # Return users role_id in the school
+        cmd1 = f"SELECT role_id FROM roles_membership WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
+        self.cursor.execute(cmd1)
+        res = self.cursor.fetchall()
+        role_id = res[0][0]
+        return role_id
+
+    def fetch_user_name(self, vk_id):
+        # Return username of vk_id
+        cmd1 = f"SELECT nickname FROM users WHERE vk_id LIKE {vk_id}"
+        self.cursor.execute(cmd1)
+        res = self.cursor.fetchall()
+        nickname = res[0][0]
+        return nickname
+
+    def fetch_group_name(self, group_id):
+        # Return group_name of the group_id
+        cmd1 = f"SELECT group_name FROM groups WHERE group_id LIKE {group_id}"
+        self.cursor.execute(cmd1)
+        res = self.cursor.fetchall()
+        group_name = res[0][0]
+        return group_name
+
+    def fetch_school_groups_ids(self, school_id):
+        # Returns school groups ids of school_id school
+        cmd1 = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id}"
+        self.cursor.execute(cmd1)
+        school_groups_ids = [x[0] for x in self.cursor.fetchall()]
+        return school_groups_ids
+
+    def fetch_role_name(self, role_id):
+        # Returns role name
+        cmd1 = f"SELECT role_name FROM roles WHERE role_id LIKE {role_id}"
+        self.cursor.execute(cmd1)
+        res = self.cursor.fetchall()
+        role_name = res[0][0]
+        return role_name

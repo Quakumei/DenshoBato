@@ -36,12 +36,16 @@ class MsgHandler:
                         if name is False:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    if value == CodeList.CODE.INVITE_USER or value == CodeList.CODE.ADD_TO_GROUP:
-                        if len(name) != 2 or not name[0].isnumeric() or not name[1].isnumeric():
+                    elif value == CodeList.CODE.INVITE_USER or value == CodeList.CODE.ADD_TO_GROUP:
+                        if not name or len(name) != 2 or not name[0].isnumeric() or not name[1].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    if value == CodeList.CODE.CREATE_GROUP:
-                        if len(name) < 2 or not name[0].isnumeric():
+                    elif value == CodeList.CODE.CREATE_GROUP:
+                        if not name or len(name) < 2 or not name[0].isnumeric():
+                            self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+                            return
+                    elif value == CodeList.CODE.INFO_SCHOOL:
+                        if not name or len(name) != 1 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     self.action_handler.handle_act(value, update)

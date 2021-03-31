@@ -22,7 +22,8 @@ class ActionHandler:
             CODE.REGISTER: self.register,
             CODE.INVITE_USER: self.invite_user,
             CODE.CREATE_GROUP: self.create_group,
-            CODE.ADD_TO_GROUP: self.add_to_group
+            CODE.ADD_TO_GROUP: self.add_to_group,
+            CODE.INFO_SCHOOL: self.info_school
         }
 
     def handle_act(self, code, update):
@@ -162,4 +163,39 @@ class ActionHandler:
             txt = f"Вы успешно добавили {user_id} в группу {group_id}"
             self.vkapi_handler.send_msg(user_id, txt)
 
+    def info_school(self, update):
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
 
+        # Fetch data
+        school_name = self.db_handler.fetch_school_name(school_id)
+        school_groups_ids = self.db_handler.fetch_school_groups_ids(school_id)
+        school_groups_names = []
+        for group_id in school_groups_ids:
+            school_groups_names.append(self.db_handler.fetch_group_name(group_id))
+
+        school_groups = []
+        for i in range(len(school_groups_ids)):
+            school_groups.append((school_groups_ids[i],school_groups_names[i]))
+
+        members_ids = self.db_handler.fetch_school_members_vk_ids(school_id)
+        members_names=[]
+        members_groups=[]
+        members_roles=[]
+        for member_id in members_ids:
+            members_names.append(self.db_handler.fetch_user_name(member_id))
+            # Very bad code you could do better
+            members_groups.append([self.db_handler.fetch_group_name(x) for x in self.db_handler.fetch_user_school_groups(school_id, member_id)])
+            members_roles.append(self.db_handler.fetch_user_school_role(school_id, member_id))
+
+        members = []
+        for i in range(len(members_ids)):
+            members.append((members_roles[i],members_names[i],members_groups[i], members_ids[i]))
+
+        # Now we have school_groups (group_id , group_name)
+        # Now we have members (role_id, name, group_names, vk_id)
+
+        txt = Utility.school_info((school_id,school_name), school_groups, members, self.db_handler)
+        self.vkapi_handler.send_msg(user_id, txt)
