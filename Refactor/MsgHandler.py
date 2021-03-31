@@ -25,7 +25,7 @@ class MsgHandler:
         user_id = update['object']['from_id']
 
         if msg and msg[0] is self.command_symbol:
-            code = msg.split(' ', 1)[0][1:]
+            code = msg.split(' ', 1)[0][1:].lower()
             # Handle command
             for (key, value) in self.code_dict.items():
                 if key == code:
