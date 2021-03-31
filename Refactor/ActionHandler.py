@@ -19,7 +19,8 @@ class ActionHandler:
             CODE.ECHO: self.echo,
             CODE.CREATE_SCHOOL: self.create_school,
             CODE.INVALID: self.invalid,
-            CODE.REGISTER: self.register
+            CODE.REGISTER: self.register,
+            CODE.INVITE_USER: self.invite_user
         }
 
     def handle_act(self, code, update):
@@ -81,9 +82,34 @@ class ActionHandler:
             err = f"Что-то пошло не так при регистрации..."
             self.vkapi_handler.send_msg(user_id, err)
 
-
     def invalid(self, update):
         # Wrong command
         user_id = update['object']['from_id']
         msg = "Неправильная команда. Напишите !помощь, чтобы узнать больше."
         self.vkapi_handler.send_msg(user_id, msg)
+
+    def invite_user(self, update):
+        # Invite vk_id to school_id if you have a permission to.
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        vk_id = args[0]
+        school_id = args[1]
+        # TODO: Maybe change that later to real invite system
+        code = self.db_handler.add_user(vk_id, school_id, user_id)
+        if code == -2:
+            err = f"Ошибка: Пользователь {vk_id} уже участник школы {school_id}..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -1:
+            err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -3:
+            err = f"Ошибка: Пользователь {vk_id} не зарегистрирован в системе..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -4:
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}"
+            self.vkapi_handler.send_msg(user_id, err)
+        else:
+            txt = f"Вы успешно пригласили пользователя {vk_id} в {school_id}"
+            self.vkapi_handler.send_msg(user_id, txt)
+

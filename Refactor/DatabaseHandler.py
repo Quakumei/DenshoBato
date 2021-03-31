@@ -82,19 +82,57 @@ class DatabaseHandler:
 
     def user_nickname_update(self, vk_id, nickname):
         # Updates persons nickname if vk_id is here, creates an entry otherwise
-        cmd1 = f"SELECT vk_id FROM users WHERE vk_id LIKE {vk_id}"
-        self.cursor.execute(cmd1)
-        results = self.cursor.fetchall()
-        print(results)
-        if not results:
-            cmd2 = f"INSERT INTO users (vk_id, nickname) VALUES ({vk_id},'{nickname}')"
+        try:
+            cmd1 = f"SELECT vk_id FROM users WHERE vk_id LIKE {vk_id}"
+            self.cursor.execute(cmd1)
+            results = self.cursor.fetchall()
+            print(results)
+            if not results:
+                cmd2 = f"INSERT INTO users (vk_id, nickname) VALUES ({vk_id},'{nickname}')"
+                self.cursor.execute(cmd2)
+                self.connection.commit()
+            else:
+                cmd2 = f"UPDATE users SET nickname='{nickname}' WHERE vk_id={vk_id}"
+                self.cursor.execute(cmd2)
+                self.connection.commit()
+            return True
+        except:
+            print(f"Проблемы в user_nickname_update(vk_id={vk_id}, nickname={nickname})")
+            return -1
+
+    def add_user(self, vk_id, school_id, inviter_id):
+        # Add user to school (give him the role of Reader (1))
+
+        try:
+            # Check whether the invitee is registered
+            cmd1 = f"SELECT * FROM users WHERE vk_id LIKE {vk_id}"
+            self.cursor.execute(cmd1)
+            res = self.cursor.fetchall()
+            if not res:
+                return -3
+
+            # Check whether the entry is presented and return -2 in that case
+            cmd2 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
             self.cursor.execute(cmd2)
+            res = self.cursor.fetchall()
+            if res:
+                return -2
+
+            # Check whether the inviter is atleast member of school
+            # TODO: Upgrade that to role check?
+            cmd3 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {inviter_id} AND school_id LIKE {school_id}"
+            self.cursor.execute(cmd3)
+            res = self.cursor.fetchall()
+            if not res:
+                return -4
+
+            # Execute, return True on success
+            cmd4 = f"INSERT INTO roles_membership (vk_id, role_id, school_id) VALUES ({vk_id}, {5}, {school_id})"
+            self.cursor.execute(cmd4)
             self.connection.commit()
-        else:
-            cmd2 = f"UPDATE users SET nickname='{nickname}' WHERE vk_id={vk_id}"
-            self.cursor.execute(cmd2)
-            self.connection.commit()
-        return True
+            return True
+        except:
+            return -1
 
     def fetch_members(self, school_name):
         # Returns list of vk_id of people of the school_name school

@@ -20,12 +20,13 @@ DEBUG_WORD = "дебаг"
 HELP_WORD = "помощь"
 CREATE_SCHOOL_WORD = "создать_школу"
 REGISTER_WORD = "рег"
-# TODO: Registration process: !рег Имя пользователя
+INVITE_USER_WORD = "приг"
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    INVITE_USER_WORD: CODE.INVITE_USER,
     REGISTER_WORD: CODE.REGISTER,
     HELP_WORD: CODE.HELP,
     DEBUG_WORD: CODE.DEBUG,

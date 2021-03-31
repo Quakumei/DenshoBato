@@ -5,4 +5,5 @@ class CODE:
     CREATE_SCHOOL = 3
     INVALID = 4
     REGISTER = 5
+    INVITE_USER = 6
 
