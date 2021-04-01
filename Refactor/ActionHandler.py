@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.GROUP_MSG: self.group_msg,
             CODE.REMOVE_USER_FROM_GROUP: self.expel_from_group,
             CODE.REMOVE_USER: self.expel,
             CODE.UPDATE_ROLE: self.update_role,
@@ -277,3 +278,51 @@ class ActionHandler:
             self.vkapi_handler.send_msg(user_id, err)
 
 
+    def group_msg(self, update):
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        group_id = args[0]
+        bad_n_flag = False
+        if not group_id.isnumeric() and group_id[0].isnumeric():
+            bad_n_flag = True
+            group_id = group_id.split('\n', 1)[0]
+
+        # God blame me for that please
+        if not self.db_handler.group_check(group_id):
+            err = f"Указанной группы не существует..."
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Permission check
+        # Fetch group_ids where can sender send to
+        groups_avail = self.db_handler.avail_group_msg_group_ids(user_id)
+        if int(group_id) not in groups_avail:
+            err = f"Вы не можете писать группе {group_id}... (Доступные:{groups_avail})"
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Fetch ids
+        mailing_list_ids = self.db_handler.fetch_group_members_ids(group_id)
+
+        # Send msg
+
+        # Make msg: sender to whom (group_id and word) and school
+        msg = msg.split(' ', 1)[1]
+        msg = msg[len(group_id):]
+
+        user_id = user_id
+        sender_name = self.db_handler.fetch_user_name(user_id)
+        group_name = self.db_handler.fetch_group_name(group_id)
+
+        hat = f"✉ Сообщение ✉\n[ОТ: ] {sender_name}(id:{user_id})\n[КОМУ: ] {group_name}(group_id:{group_id})\n\n"
+        msg = hat + msg
+        attachments = update['object']['attachments']
+        attachment_str, urls = Utility.parse_attachments2str(attachments)
+        if attachment_str:
+            footer = f"\nВложения:\n" + str("\n".join(urls))
+            msg = msg + footer
+        for id in mailing_list_ids:
+            self.vkapi_handler.send_msg(id, msg, attachment_str)
+
+        return

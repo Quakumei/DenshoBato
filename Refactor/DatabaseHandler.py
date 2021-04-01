@@ -381,3 +381,48 @@ class DatabaseHandler:
         res = self.cursor.fetchall()
         role_name = res[0][0]
         return role_name
+
+    def group_check(self, group_id):
+        # Check groups for existence
+        cmd = f"SELECT group_id FROM groups WHERE group_id LIKE {group_id}"
+        self.cursor.execute(cmd)
+        res = self.cursor.fetchall()
+        if res:
+            return True
+        else:
+            return False
+
+    def fetch_user_schools(self, user_id):
+        pass
+        #TOBEUSED IN !INFO
+
+    def fetch_user_groups(self, user_id):
+        pass
+        #TOBEUSED IN !INFO
+
+    def fetch_group_members_ids(self, group_id):
+        # Returns list of group members
+        cmd = f"SELECT vk_id FROM groups_membership WHERE group_id LIKE {group_id}"
+        self.cursor.execute(cmd)
+        vk_ids = self.cursor.fetchall()
+        return [x[0] for x in vk_ids]
+
+
+    def avail_group_msg_group_ids(self, user_id):
+        # Title says it all (available)
+        # 1.) Get schools ids where user < 3 (teacher or more)
+        # 2.) Get groups ids of school groups
+        cmd = f"SELECT school_id, role_id FROM roles_membership WHERE vk_id LIKE {user_id}"
+        self.cursor.execute(cmd)
+        school_ids = self.cursor.fetchall()
+        filtered_ids = []
+        for id, role in school_ids:
+            if role <= 3:
+                filtered_ids.append(id)
+
+        # Fetch group_ids by school_ids
+        result_ids = []
+        for school_id in filtered_ids:
+            result_ids = result_ids + self.fetch_school_groups_ids(school_id)
+
+        return result_ids

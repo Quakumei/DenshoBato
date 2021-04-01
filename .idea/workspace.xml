@@ -7,7 +7,8 @@
       <change beforePath="$PROJECT_DIR$/Refactor/CodeList.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/CodeList.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/DatabaseHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/DatabaseHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/MsgHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/MsgHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Refactor/bato.db" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/bato.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/Utility.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/Utility.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/VkApiHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/VkApiHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

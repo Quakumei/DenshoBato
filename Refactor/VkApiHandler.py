@@ -26,12 +26,17 @@ class VkApiHandler:
             print(self.key)
             print(self.ts)
 
-    def send_msg(self, user_id, msg, attachments=None):
-        # Big method for sending messages with attachments in future
+    # def send_msg(self, user_id, txt):
+    #     # Send text only
+    #     self.api.messages.send(user_id=user_id, random_id=randint(-2147483648, 2147483647),
+    #                            message=txt)
+    def send_msg(self, user_id, txt, attachment_str=None):
+        # Send text with attachments
         self.api.messages.send(user_id=user_id, random_id=randint(-2147483648, 2147483647),
-                               message=msg)
+                               message=txt, attachment=attachment_str)
 
     def setMsgHandler(self, msg_handler):
+
         self.msg_handler = msg_handler
 
     def main_loop(self):
