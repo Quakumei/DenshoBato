@@ -9,3 +9,4 @@ class CODE:
     CREATE_GROUP = 7
     ADD_TO_GROUP = 8
     INFO_SCHOOL = 9
+    UPDATE_ROLE = 10

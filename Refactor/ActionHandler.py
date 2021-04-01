@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.UPDATE_ROLE: self.update_role,
             CODE.DEBUG: self.debug,
             CODE.HELP: self.help,
             CODE.ECHO: self.echo,
@@ -199,3 +200,42 @@ class ActionHandler:
 
         txt = Utility.school_info((school_id,school_name), school_groups, members, self.db_handler)
         self.vkapi_handler.send_msg(user_id, txt)
+
+    def update_role(self, update):
+        # Changes role of the subject
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
+        vk_id = args[1]
+        new_role_id = args[2]
+
+        code = self.db_handler.update_role(school_id, vk_id, new_role_id, user_id)
+        if code == -4:
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -1:
+            err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -2:
+            err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -3:
+            err = f"Ошибка: Нет роли {new_role_id}..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -5:
+            err = f"Ошибка: Нет школы {school_id}..."
+            self.vkapi_handler.send_msg(user_id, err)
+        if code is True:
+            txt = f"Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'"
+            self.vkapi_handler.send_msg(user_id, txt)
+
+
+    def expel(self, update):
+        # Removes user from school
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
+        vk_id = args[1]
+        pass

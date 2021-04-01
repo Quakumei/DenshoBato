@@ -46,7 +46,7 @@ def school_info(school, school_groups, members, db_handler):
         if cur_role != prev_role:
             res = res + f"\n{db_handler.fetch_role_name(cur_role)}:\n"
             prev_role = cur_role
-        res += f'{m[1]} ({", ".join(m[2])})\n'
+        res += f'{m[1]} ({", ".join(m[2])}) [id{m[3]}]\n'
     res += '\n' + "-"*20 + '\n'
     res += f'Итого: {len(members)} участников.\n'
     return res

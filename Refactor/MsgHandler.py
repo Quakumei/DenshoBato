@@ -48,6 +48,10 @@ class MsgHandler:
                         if not name or len(name) != 1 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
+                    elif value == CodeList.CODE.UPDATE_ROLE:
+                        if not name or len(name) !=3 or not name[0].isnumeric() or not name[1].isnumeric() or not name[2].isnumeric():
+                            self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+                            return
                     self.action_handler.handle_act(value, update)
                     return
         # Not a command.

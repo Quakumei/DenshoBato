@@ -208,6 +208,40 @@ class DatabaseHandler:
         except:
             return -1
 
+    def update_role(self, school_id, vk_id, new_role_id, user_id):
+        # Update role of user with vk_id with accordance to user_id permissions
+        # Check whether school exists
+        check = f"SELECT school_id FROM schools WHERE school_id LIKE {school_id}"
+        self.cursor.execute(check)
+        res = self.cursor.fetchall()
+        if not res:
+            return -5
+
+        # Permission check
+        user_role_id = self.fetch_user_school_role(school_id, user_id)
+        if int(new_role_id) <= int(user_role_id):
+            return -4
+
+        # Check whether the role exists or not
+        check = f"SELECT role_id FROM roles WHERE role_id LIKE {new_role_id}"
+        self.cursor.execute(check)
+        res = self.cursor.fetchall()
+        if not res:
+            return -3
+
+        # Check whether user exists in school or not
+        check = f"SELECT role_id FROM roles_membership WHERE school_id LIKE {school_id} AND vk_id LIKE {vk_id}"
+        self.cursor.execute(check)
+        res = self.cursor.fetchall()
+        if not res:
+            return -2
+
+        # Execution
+        cmd = f"UPDATE roles_membership SET role_id={new_role_id} WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True
+
     # Info parse
     def fetch_school_name(self, school_id):
         # Returns school_id school's name

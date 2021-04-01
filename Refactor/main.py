@@ -24,11 +24,13 @@ INVITE_USER_WORD = "приг" # !приг vk_id school_id
 CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
 ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
 INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
+UPDATE_ROLE_WORD = "изм_роль" # !изм_роль school_id vk_id new_role_id
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    UPDATE_ROLE_WORD: CODE.UPDATE_ROLE,
     INFO_SCHOOL_WORD: CODE.INFO_SCHOOL,
     ADD_TO_GROUP_WORD: CODE.ADD_TO_GROUP,
     CREATE_GROUP_WORD: CODE.CREATE_GROUP,
