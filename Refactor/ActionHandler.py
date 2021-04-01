@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.REMOVE_USER_FROM_GROUP: self.expel_from_group,
             CODE.REMOVE_USER: self.expel,
             CODE.UPDATE_ROLE: self.update_role,
             CODE.DEBUG: self.debug,
@@ -253,7 +254,26 @@ class ActionHandler:
         elif code == -5:
             err = f"Ошибка: Нет школы {school_id}..."
             self.vkapi_handler.send_msg(user_id, err)
-        if code is True:
+        elif code is True:
             txt = f"Вы успешно исключили '{vk_id}' из школы '{school_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
+
+    def expel_from_group(self, update):
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
+        target_id = args[1]
+        group_id = args[2]
+
+        #TODO: Write error codes later
+        code = self.db_handler.remove_from_group(school_id, group_id, target_id, user_id)
+
+        if code is True:
+            txt = f"Вы успешно исключили '{target_id}' из группы '{group_id}' школы '{school_id}'."
+            self.vkapi_handler.send_msg(user_id, txt)
+        else:
+            err = f"Что-то пошло не так [Код ошибки: {code}]..."
+            self.vkapi_handler.send_msg(user_id, err)
+
 

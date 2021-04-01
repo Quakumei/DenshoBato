@@ -30,7 +30,7 @@ class MsgHandler:
             for (key, value) in self.code_dict.items():
                 if key == code:
 
-                    # Check if it is good to go
+                    # Apply restriction ifs
                     name = Utility.parse_arg(msg)
                     if value == CodeList.CODE.CREATE_SCHOOL or value == CodeList.CODE.REGISTER:
                         if name is False:
@@ -48,7 +48,7 @@ class MsgHandler:
                         if not name or len(name) != 1 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    elif value == CodeList.CODE.UPDATE_ROLE:
+                    elif value == CodeList.CODE.UPDATE_ROLE or value == CodeList.CODE.REMOVE_USER_FROM_GROUP:
                         if not name or len(name) !=3 or not name[0].isnumeric() or not name[1].isnumeric() or not name[2].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return

@@ -183,8 +183,6 @@ class DatabaseHandler:
             if res:
                 return -5
 
-
-
             # Act.
             cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
             self.cursor.execute(cmd3)
@@ -194,6 +192,7 @@ class DatabaseHandler:
             return -1
 
     def school_check(self, school_id):
+        # Check whether a school exists
         check = f"SELECT school_id FROM schools WHERE school_id LIKE {school_id}"
         self.cursor.execute(check)
         res = self.cursor.fetchall()
@@ -257,6 +256,8 @@ class DatabaseHandler:
         return True
 
     def remove_user(self, school_id, target_id, user_id):
+        #Remove user from school
+
         # Check whether school exists
         if not self.school_check(school_id):
             return -5
@@ -276,6 +277,34 @@ class DatabaseHandler:
         self.cursor.execute(cmd)
         self.connection.commit()
         return True
+
+    def remove_from_group(self, school_id, group_id, target_id, user_id):
+        # Check whether school exists
+        if not self.school_check(school_id):
+            return -5
+        # Check whether user exists in school or not
+        if not self.user_in_school_check(target_id, school_id):
+            return -2
+        # Check whether user exists in school or not
+        if not self.user_in_school_check(user_id, school_id):
+            return -2
+        # Check whether a target is a part of a group
+        cmd =f"SELECT * FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
+        self.cursor.execute(cmd)
+        res = self.cursor.fetchall()
+        if not res:
+            return -3
+        # Permission check
+        user_role_id = self.fetch_user_school_role(school_id, user_id)
+        if user_role_id > 3: # (must be a Teacher or higher)
+            return -1
+
+        cmd = f"DELETE FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True
+
+
 
 
     # Info parse
