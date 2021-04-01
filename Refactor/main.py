@@ -20,16 +20,18 @@ DEBUG_WORD = "дебаг" # !дебаг
 HELP_WORD = "помощь" # !помощь
 CREATE_SCHOOL_WORD = "создать_школу" # !создать_школу school_name
 REGISTER_WORD = "рег" # !рег username
-INVITE_USER_WORD = "приг" # !приг vk_id school_id
+INVITE_USER_WORD = "приг" # !приг school_id vk_id
 CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
 ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
 INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
 UPDATE_ROLE_WORD = "изм_роль" # !изм_роль school_id vk_id new_role_id
+REMOVE_USER_WORD = "искл" #!искл school_id target_id
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    REMOVE_USER_WORD: CODE.REMOVE_USER,
     UPDATE_ROLE_WORD: CODE.UPDATE_ROLE,
     INFO_SCHOOL_WORD: CODE.INFO_SCHOOL,
     ADD_TO_GROUP_WORD: CODE.ADD_TO_GROUP,

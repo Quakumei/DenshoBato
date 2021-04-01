@@ -109,7 +109,7 @@ class DatabaseHandler:
                 return -3
 
             # Check whether the entry is presented and return -2 in that case
-            if not self.user_in_school_check(vk_id, school_id):
+            if self.user_in_school_check(vk_id, school_id):
                 return -2
 
             # todone: Upgrade that to role check? - Not necessary. Readers won't get anything unless they are put into groups.
@@ -255,6 +255,28 @@ class DatabaseHandler:
         self.cursor.execute(cmd)
         self.connection.commit()
         return True
+
+    def remove_user(self, school_id, target_id, user_id):
+        # Check whether school exists
+        if not self.school_check(school_id):
+            return -5
+        # Check whether user exists in school or not
+        if not self.user_in_school_check(target_id, school_id):
+            return -2
+        # Check whether user exists in school or not
+        if not self.user_in_school_check(user_id, school_id):
+            return -2
+        # Permission check
+        user_role_id = self.fetch_user_school_role(school_id, user_id)
+        target_role_id = self.fetch_user_school_role(school_id, target_id)
+        if int(target_role_id) <= int(user_role_id):
+            return -4
+
+        cmd = f"DELETE FROM roles_membership WHERE vk_id LIKE {target_id} and school_id LIKE {school_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True
+
 
     # Info parse
     def fetch_school_name(self, school_id):

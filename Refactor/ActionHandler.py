@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.REMOVE_USER: self.expel,
             CODE.UPDATE_ROLE: self.update_role,
             CODE.DEBUG: self.debug,
             CODE.HELP: self.help,
@@ -97,8 +98,8 @@ class ActionHandler:
         msg = update['object']['text']
         user_id = update['object']['from_id']
         args = Utility.parse_arg(msg)
-        vk_id = args[0]
-        school_id = args[1]
+        vk_id = args[1]
+        school_id = args[0]
         # TODO: Maybe change that later to real invite system
         code = self.db_handler.add_user(vk_id, school_id, user_id)
         if code == -2:
@@ -211,11 +212,11 @@ class ActionHandler:
         new_role_id = args[2]
 
         code = self.db_handler.update_role(school_id, vk_id, new_role_id, user_id)
-        if code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
-            self.vkapi_handler.send_msg(user_id, err)
-        elif code == -1:
+        if code == -1:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -4:
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -2:
             err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
@@ -238,4 +239,21 @@ class ActionHandler:
         args = Utility.parse_arg(msg)
         school_id = args[0]
         vk_id = args[1]
-        pass
+
+        code = self.db_handler.remove_user(school_id, vk_id, user_id)
+        if code == -1:
+            err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -4:
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -2:
+            err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
+            self.vkapi_handler.send_msg(user_id, err)
+        elif code == -5:
+            err = f"Ошибка: Нет школы {school_id}..."
+            self.vkapi_handler.send_msg(user_id, err)
+        if code is True:
+            txt = f"Вы успешно исключили '{vk_id}' из школы '{school_id}'."
+            self.vkapi_handler.send_msg(user_id, txt)
+

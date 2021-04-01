@@ -10,3 +10,4 @@ class CODE:
     ADD_TO_GROUP = 8
     INFO_SCHOOL = 9
     UPDATE_ROLE = 10
+    REMOVE_USER = 11
