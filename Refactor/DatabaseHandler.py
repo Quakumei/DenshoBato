@@ -105,25 +105,16 @@ class DatabaseHandler:
 
         try:
             # Check whether the invitee is registered
-            cmd1 = f"SELECT * FROM users WHERE vk_id LIKE {vk_id}"
-            self.cursor.execute(cmd1)
-            res = self.cursor.fetchall()
-            if not res:
+            if not self.user_check(vk_id):
                 return -3
 
             # Check whether the entry is presented and return -2 in that case
-            cmd2 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
-            self.cursor.execute(cmd2)
-            res = self.cursor.fetchall()
-            if res:
+            if not self.user_in_school_check(vk_id, school_id):
                 return -2
 
+            # todone: Upgrade that to role check? - Not necessary. Readers won't get anything unless they are put into groups.
             # Check whether the inviter is atleast member of school
-            # TODO: Upgrade that to role check?
-            cmd3 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {inviter_id} AND school_id LIKE {school_id}"
-            self.cursor.execute(cmd3)
-            res = self.cursor.fetchall()
-            if not res:
+            if not self.user_in_school_check(inviter_id, school_id):
                 return -4
 
             # Execute, return True on success
@@ -138,12 +129,9 @@ class DatabaseHandler:
         # Create the group and return its group_id
         # GROUPS WITH SAME SCHOOL_ID AND GROUP_NAME ARE PROHIBITED
 
-        # Check whether the inviter is atleast member of school
-        # TODO: Upgrade that to role check?
-        cmd1 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id} AND school_id LIKE {school_id}"
-        self.cursor.execute(cmd1)
-        res = self.cursor.fetchall()
-        if not res:
+        # Check whether the creator is atleast member of school
+        # TODO: Upgrade that to role check? -- Maybe yes.
+        if not self.user_in_school_check(user_id, school_id):
             return -4
 
         # Check whether there is already group with that name
@@ -172,10 +160,7 @@ class DatabaseHandler:
         # TODO: Upgrade that to role check?
         try:
             # Is person even there?
-            cmd1 = f"SELECT * FROM users WHERE vk_id LIKE {vk_id}"
-            self.cursor.execute(cmd1)
-            res = self.cursor.fetchall()
-            if not res:
+            if not self.user_check(vk_id):
                 return -3
 
             # Is group even there? + fetch school_id
@@ -200,7 +185,7 @@ class DatabaseHandler:
             if res:
                 return -5
 
-            # Add if everything above is false.
+            # Act.
             cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
             self.cursor.execute(cmd3)
             self.connection.commit()
@@ -208,33 +193,62 @@ class DatabaseHandler:
         except:
             return -1
 
-    def update_role(self, school_id, vk_id, new_role_id, user_id):
-        # Update role of user with vk_id with accordance to user_id permissions
-        # Check whether school exists
+    def school_check(self, school_id):
         check = f"SELECT school_id FROM schools WHERE school_id LIKE {school_id}"
         self.cursor.execute(check)
         res = self.cursor.fetchall()
         if not res:
-            return -5
+            return False
+        return True
 
+    def role_check(self, role_id):
+        # Check whether the role exists or not
+        check = f"SELECT role_id FROM roles WHERE role_id LIKE {role_id}"
+        self.cursor.execute(check)
+        res = self.cursor.fetchall()
+        if not res:
+            return False
+        return True
+
+    def user_check(self, vk_id):
+        # Return True if user is in the system. Otherwise - False.
+        cmd1 = f"SELECT * FROM users WHERE vk_id LIKE {vk_id}"
+        self.cursor.execute(cmd1)
+        res = self.cursor.fetchall()
+        if not res:
+            return False
+        return True
+
+    def user_in_school_check(self, vk_id, school_id):
+        # Return True if user is in the school school-id
+        if self.user_check(vk_id):
+            cmd2 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
+            self.cursor.execute(cmd2)
+            res = self.cursor.fetchall()
+            if res:
+                return True
+        else:
+            return False
+
+    def update_role(self, school_id, vk_id, new_role_id, user_id):
+        # Update role of user with vk_id with accordance to user_id permissions
+
+        # Check whether school exists
+        if not self.school_check(school_id):
+            return -5
+        # Check whether user exists in school or not
+        if not self.user_in_school_check(vk_id, school_id):
+            return -2
+        # Check whether user exists in school or not
+        if not self.user_in_school_check(user_id, school_id):
+            return -2
+        # Check whether the role exists or not
+        if not self.role_check(new_role_id):
+            return -3
         # Permission check
         user_role_id = self.fetch_user_school_role(school_id, user_id)
         if int(new_role_id) <= int(user_role_id):
             return -4
-
-        # Check whether the role exists or not
-        check = f"SELECT role_id FROM roles WHERE role_id LIKE {new_role_id}"
-        self.cursor.execute(check)
-        res = self.cursor.fetchall()
-        if not res:
-            return -3
-
-        # Check whether user exists in school or not
-        check = f"SELECT role_id FROM roles_membership WHERE school_id LIKE {school_id} AND vk_id LIKE {vk_id}"
-        self.cursor.execute(check)
-        res = self.cursor.fetchall()
-        if not res:
-            return -2
 
         # Execution
         cmd = f"UPDATE roles_membership SET role_id={new_role_id} WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
