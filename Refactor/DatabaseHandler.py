@@ -162,20 +162,18 @@ class DatabaseHandler:
             # Is person even there?
             if not self.user_check(vk_id):
                 return -3
-
-            # Is group even there? + fetch school_id
+            if not self.user_check(user_id):
+                return -4
             cmd1 = f"SELECT * FROM groups WHERE group_id LIKE {group_id}"
             self.cursor.execute(cmd1)
             res = self.cursor.fetchall()
+            # Is group even there? + fetch school_id
             if not res:
                 return -4
             group_school_id = res[0][1]
 
             # Is group even in the same school as user_id is?
-            cmd1 = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id} AND school_id LIKE {group_school_id}"
-            self.cursor.execute(cmd1)
-            res = self.cursor.fetchall()
-            if not res:
+            if not self.user_in_school_check(vk_id, group_school_id) or not self.user_in_school_check(user_id, group_school_id):
                 return -4
 
             # Maybe vk_id is already there?
@@ -184,6 +182,8 @@ class DatabaseHandler:
             res = self.cursor.fetchall()
             if res:
                 return -5
+
+
 
             # Act.
             cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"

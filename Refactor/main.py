@@ -25,7 +25,7 @@ CREATE_GROUP_WORD = "создать_группу" # !создать_группу
 ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
 INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
 UPDATE_ROLE_WORD = "изм_роль" # !изм_роль school_id vk_id new_role_id
-REMOVE_USER_WORD = "искл" #!искл school_id target_id
+REMOVE_USER_WORD = "искл_шк" #!искл_шк school_id target_id
 
 DB_NAME = 'bato.db'
 
