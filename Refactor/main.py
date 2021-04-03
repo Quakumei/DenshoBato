@@ -24,16 +24,19 @@ INVITE_USER_WORD = "приг" # !приг school_id vk_id
 UPDATE_ROLE_WORD = "изм_роль" # !изм_роль school_id vk_id new_role_id
 REMOVE_USER_WORD = "искл_шк" #!искл_шк school_id target_id
 INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
-CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
 ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
 REMOVE_USER_FROM_GROUP_WORD = "искл_гр" #!искл_гр school_id target_id group_id
 GROUP_MSG_WORD = "сообщ_гр" #!сообщ_гр group_id (сообщение)
 PM_MSG_WORD = "сообщ_чл" #!сообщ_чл vk_id сообщ
+CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
+DELETE_SCHOOL_WORD = "удалить_школу" #!удалить_школу school_id school_name (to delete for sure)
+
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    DELETE_SCHOOL_WORD: CODE.DELETE_SCHOOL,
     PM_MSG_WORD: CODE.PM_MSG,
     GROUP_MSG_WORD: CODE.GROUP_MSG,
     REMOVE_USER_FROM_GROUP_WORD: CODE.REMOVE_USER_FROM_GROUP,

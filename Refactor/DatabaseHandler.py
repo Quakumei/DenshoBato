@@ -122,7 +122,8 @@ class DatabaseHandler:
             self.cursor.execute(cmd4)
             self.connection.commit()
             return True
-        except:
+        except Exception as e:
+            print(f"{'='*25+' '+'EXCEPTION OCCURED'+' '+'='*25}\nIt says: {e}\n{'='*(50+len('EXCEPTION OCCURED')+2)}")
             return -1
 
     def create_group(self, group_name, school_id, user_id):
@@ -257,6 +258,7 @@ class DatabaseHandler:
         return True
 
     def remove_user(self, school_id, target_id, user_id):
+        # TODO: REFACTOR THIS PIECE OF SHUTTLECOCK
         # Remove user from school
 
         # Check whether school exists
@@ -314,7 +316,7 @@ class DatabaseHandler:
         school_name = res[0][0]
         return school_name
 
-    def fetch_school_members_vk_ids(self, school_id):
+    def fetch_school_members(self, school_id):
         # Returns list of vk_ids of people of the school_id school
         cmd = f"SELECT vk_id FROM roles_membership WHERE school_id LIKE {school_id}"
         self.cursor.execute(cmd)
@@ -365,11 +367,12 @@ class DatabaseHandler:
         group_name = res[0][0]
         return group_name
 
-    def fetch_school_groups_ids(self, school_id):
+    def fetch_school_groups(self, school_id):
         # Returns school groups ids of school_id school
         cmd1 = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id}"
         self.cursor.execute(cmd1)
-        school_groups_ids = [x[0] for x in self.cursor.fetchall()]
+        res = self.cursor.fetchall()
+        school_groups_ids = [x[0] for x in res]
         return school_groups_ids
 
     def fetch_role_name(self, role_id):
@@ -405,7 +408,7 @@ class DatabaseHandler:
         pass
         # TOBEUSED IN !INFO
 
-    def fetch_group_members_ids(self, group_id):
+    def fetch_group_members(self, group_id):
         # Returns list of group members
         cmd = f"SELECT vk_id FROM groups_membership WHERE group_id LIKE {group_id}"
         self.cursor.execute(cmd)
@@ -427,6 +430,60 @@ class DatabaseHandler:
         # Fetch group_ids by school_ids
         result_ids = []
         for school_id in filtered_ids:
-            result_ids = result_ids + self.fetch_school_groups_ids(school_id)
+            result_ids = result_ids + self.fetch_school_groups(school_id)
 
         return result_ids
+
+    # TODO: обернуть в декоратор методы и добавить try: except e: return e для любых случайных ошибок.
+
+    def remove_user_from_group(self, group_id, target_id):
+        # Remove user from group in groups_membership.
+        cmd = f"DELETE FROM groups_membership WHERE group_id LIKE {group_id} AND vk_id LIKE {target_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True
+
+    def remove_user_from_school(self, school_id, target_id):
+        # Remove user from school in roles_membership.
+        # ! You must remove person from the school groups.
+        # 1.) Fetch school groups
+        cmd = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id}"
+        self.cursor.execute(cmd)
+        groups_ids = [x[0] for x in self.cursor.fetchall()]
+        # 2.) Remove from school groups he is in
+        for group_id in groups_ids:
+            cmd = f"DELETE FROM groups_membership WHERE group_id LIKE {group_id} AND vk_id LIKE {target_id}"
+            self.cursor.execute(cmd)
+        # 3.) Remove him from school
+        cmd = f"DELETE FROM roles_membership WHERE school_id LIKE {school_id} AND vk_id LIKE {target_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True
+
+    def delete_group(self, group_id):
+        # Delete group.
+        # 1.) Remove all its participants from groups_membership.
+        # 2.) Remove the group itself in groups.
+        group_members_ids = self.fetch_group_members(group_id)
+        for member_id in group_members_ids:
+            self.remove_user_from_group(group_id, member_id)
+        cmd = f"DELETE FROM groups WHERE group_id LIKE {group_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True
+
+    def delete_school(self, school_id):
+        # Delete school.
+        # 1.) Remove all its participants from roles_membership.
+        # 2.) Remove all school groups from groups.
+        # 3.) Remove the school itself in schools.
+        school_members_ids = self.fetch_school_members(school_id)
+        for member_id in school_members_ids:
+            self.remove_user_from_school(school_id, member_id)
+        school_groups_ids = self.fetch_school_groups(school_id)
+        for group_id in school_groups_ids:
+            self.delete_group(group_id)
+        cmd = f"DELETE FROM schools WHERE school_id LIKE {school_id}"
+        self.cursor.execute(cmd)
+        self.connection.commit()
+        return True

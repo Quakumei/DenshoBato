@@ -14,3 +14,4 @@ class CODE:
     REMOVE_USER_FROM_GROUP = 12
     GROUP_MSG = 13
     PM_MSG = 14
+    DELETE_SCHOOL = 15

@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.DELETE_SCHOOL: self.delete_school,
             CODE.PM_MSG: self.pm_msg,
             CODE.GROUP_MSG: self.group_msg,
             CODE.REMOVE_USER_FROM_GROUP: self.expel_from_group,
@@ -176,7 +177,7 @@ class ActionHandler:
 
         # Fetch data
         school_name = self.db_handler.fetch_school_name(school_id)
-        school_groups_ids = self.db_handler.fetch_school_groups_ids(school_id)
+        school_groups_ids = self.db_handler.fetch_school_groups(school_id)
         school_groups_names = []
         for group_id in school_groups_ids:
             school_groups_names.append(self.db_handler.fetch_group_name(group_id))
@@ -185,7 +186,7 @@ class ActionHandler:
         for i in range(len(school_groups_ids)):
             school_groups.append((school_groups_ids[i], school_groups_names[i]))
 
-        members_ids = self.db_handler.fetch_school_members_vk_ids(school_id)
+        members_ids = self.db_handler.fetch_school_members(school_id)
         members_names = []
         members_groups = []
         members_roles = []
@@ -303,7 +304,7 @@ class ActionHandler:
             return
 
         # Fetch ids
-        mailing_list_ids = self.db_handler.fetch_group_members_ids(group_id)
+        mailing_list_ids = self.db_handler.fetch_group_members(group_id)
 
         # Send msg
 
@@ -325,6 +326,8 @@ class ActionHandler:
         for id in mailing_list_ids:
             self.vkapi_handler.send_msg(id, msg, attachment_str)
 
+        txt = f"Рассылка успешно выполнена."
+        self.vkapi_handler.send_msg(user_id, txt)
         return
 
     def pm_msg(self, update):
@@ -349,7 +352,7 @@ class ActionHandler:
         vk_id_pm_avail = self.db_handler.fetch_user_schools(vk_id)
         user_id_pm_avail = self.db_handler.fetch_user_schools(user_id)
         if not list(set(vk_id_pm_avail) & set(user_id_pm_avail)):
-            err = f"Вы не можете пользователю {vk_id}... (Вы должны состоять в одной школе)"
+            err = f"Вы не можете писать пользователю {vk_id}... (Вы должны состоять в одной школе)"
             self.vkapi_handler.send_msg(user_id, err)
             return
 
@@ -376,4 +379,37 @@ class ActionHandler:
         for id in mailing_list_ids:
             self.vkapi_handler.send_msg(id, msg, attachment_str)
 
+
+        txt = f"Сообщение успешно отправлено."
+        self.vkapi_handler.send_msg(user_id, txt)
         return
+
+
+    def delete_school(self, update):
+        # Delete school.
+        msg = update['object']['text']
+        args = Utility.parse_arg(msg)
+
+        # Only '1''s can delete the school.
+        user_id = update['object']['from_id']
+        school_id = args[0]
+        role_id = self.db_handler.fetch_user_school_role(school_id, user_id)
+        if not int(role_id) == int('1'):
+            err = f"Ошибка: недостаточно прав (вам необходимо быть `Creator`, для этого действия)`."
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Check whether school is valid
+        school_name_given = " ".join(args[1:])
+        school_name_true = self.db_handler.fetch_school_name(school_id)
+        if school_name_given != school_name_true:
+            err = f"Ошибка: неверно введено название школы (для вашей безопасности)."
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        self.db_handler.delete_school(school_id)
+        txt = f"Успех: школа `{school_name_true}` (id: {school_id}) была удалена."
+        self.vkapi_handler.send_msg(user_id, txt)
+        return
+
+
