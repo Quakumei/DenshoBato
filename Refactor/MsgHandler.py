@@ -52,7 +52,7 @@ class MsgHandler:
                         if not name or len(name) !=3 or not name[0].isnumeric() or not name[1].isnumeric() or not name[2].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    elif value == CodeList.CODE.GROUP_MSG:
+                    elif value == CodeList.CODE.GROUP_MSG or value == CodeList.CODE.PM_MSG:
                         #TODO: \n problem (look into log below)
                         group_id = name[0]
                         if not group_id.isnumeric() and group_id[0].isnumeric():

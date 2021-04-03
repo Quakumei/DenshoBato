@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.PM_MSG: self.pm_msg,
             CODE.GROUP_MSG: self.group_msg,
             CODE.REMOVE_USER_FROM_GROUP: self.expel_from_group,
             CODE.REMOVE_USER: self.expel,
@@ -182,26 +183,27 @@ class ActionHandler:
 
         school_groups = []
         for i in range(len(school_groups_ids)):
-            school_groups.append((school_groups_ids[i],school_groups_names[i]))
+            school_groups.append((school_groups_ids[i], school_groups_names[i]))
 
         members_ids = self.db_handler.fetch_school_members_vk_ids(school_id)
-        members_names=[]
-        members_groups=[]
-        members_roles=[]
+        members_names = []
+        members_groups = []
+        members_roles = []
         for member_id in members_ids:
             members_names.append(self.db_handler.fetch_user_name(member_id))
             # Very bad code you could do better
-            members_groups.append([self.db_handler.fetch_group_name(x) for x in self.db_handler.fetch_user_school_groups(school_id, member_id)])
+            members_groups.append([self.db_handler.fetch_group_name(x) for x in
+                                   self.db_handler.fetch_user_school_groups(school_id, member_id)])
             members_roles.append(self.db_handler.fetch_user_school_role(school_id, member_id))
 
         members = []
         for i in range(len(members_ids)):
-            members.append((members_roles[i],members_names[i],members_groups[i], members_ids[i]))
+            members.append((members_roles[i], members_names[i], members_groups[i], members_ids[i]))
 
         # Now we have school_groups (group_id , group_name)
         # Now we have members (role_id, name, group_names, vk_id)
 
-        txt = Utility.school_info((school_id,school_name), school_groups, members, self.db_handler)
+        txt = Utility.school_info((school_id, school_name), school_groups, members, self.db_handler)
         self.vkapi_handler.send_msg(user_id, txt)
 
     def update_role(self, update):
@@ -232,7 +234,6 @@ class ActionHandler:
         if code is True:
             txt = f"Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'"
             self.vkapi_handler.send_msg(user_id, txt)
-
 
     def expel(self, update):
         # Removes user from school
@@ -267,7 +268,7 @@ class ActionHandler:
         target_id = args[1]
         group_id = args[2]
 
-        #TODO: Write error codes later
+        # TODO: Write error codes later
         code = self.db_handler.remove_from_group(school_id, group_id, target_id, user_id)
 
         if code is True:
@@ -276,7 +277,6 @@ class ActionHandler:
         else:
             err = f"Что-то пошло не так [Код ошибки: {code}]..."
             self.vkapi_handler.send_msg(user_id, err)
-
 
     def group_msg(self, update):
         msg = update['object']['text']
@@ -316,6 +316,57 @@ class ActionHandler:
         group_name = self.db_handler.fetch_group_name(group_id)
 
         hat = f"✉ Сообщение ✉\n[ОТ: ] {sender_name}(id:{user_id})\n[КОМУ: ] {group_name}(group_id:{group_id})\n\n"
+        msg = hat + msg
+        attachments = update['object']['attachments']
+        attachment_str, urls = Utility.parse_attachments2str(attachments)
+        if attachment_str:
+            footer = f"\nВложения:\n" + str("\n".join(urls))
+            msg = msg + footer
+        for id in mailing_list_ids:
+            self.vkapi_handler.send_msg(id, msg, attachment_str)
+
+        return
+
+    def pm_msg(self, update):
+        # Basically group_send but without fetching id and checking whether both of the users are in the same school
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        vk_id = args[0]
+        bad_n_flag = False
+        if not vk_id.isnumeric() and vk_id[0].isnumeric():
+            bad_n_flag = True
+            group_id = vk_id.split('\n', 1)[0]
+
+        # God blame me for that please
+        if not self.db_handler.user_check(vk_id):
+            err = f"Указанного пользователя не существует..."
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Permission check
+        # Users must be in the same clan.
+        vk_id_pm_avail = self.db_handler.fetch_user_schools(vk_id)
+        user_id_pm_avail = self.db_handler.fetch_user_schools(user_id)
+        if not list(set(vk_id_pm_avail) & set(user_id_pm_avail)):
+            err = f"Вы не можете пользователю {vk_id}... (Вы должны состоять в одной школе)"
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Fetch ids
+        mailing_list_ids = [vk_id]
+
+        # Send msg
+
+        # Make msg: sender to whom (group_id and word) and school
+        msg = msg.split(' ', 1)[1]
+        msg = msg[len(vk_id):]
+
+        user_id = user_id
+        sender_name = self.db_handler.fetch_user_name(user_id)
+        vk_id_name = self.db_handler.fetch_user_name(vk_id)
+
+        hat = f"✉ Сообщение ✉\n[ОТ: ] {sender_name}(id:{user_id})\n[КОМУ: ] {vk_id_name}(vk_id:{vk_id})\n\n"
         msg = hat + msg
         attachments = update['object']['attachments']
         attachment_str, urls = Utility.parse_attachments2str(attachments)

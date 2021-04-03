@@ -27,13 +27,14 @@ INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
 CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
 ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
 REMOVE_USER_FROM_GROUP_WORD = "искл_гр" #!искл_гр school_id target_id group_id
-MSG_WORD = "сообщ" # !сообщ school_id vk_id  (сообщение которое отправлено боту)
-GROUP_MSG_WORD = "сообщ_гр" #! сообщ_гр group_id (сообщение)
+GROUP_MSG_WORD = "сообщ_гр" #!сообщ_гр group_id (сообщение)
+PM_MSG_WORD = "сообщ_чл" #!сообщ_чл vk_id сообщ
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    PM_MSG_WORD: CODE.PM_MSG,
     GROUP_MSG_WORD: CODE.GROUP_MSG,
     REMOVE_USER_FROM_GROUP_WORD: CODE.REMOVE_USER_FROM_GROUP,
     REMOVE_USER_WORD: CODE.REMOVE_USER,

@@ -173,7 +173,8 @@ class DatabaseHandler:
             group_school_id = res[0][1]
 
             # Is group even in the same school as user_id is?
-            if not self.user_in_school_check(vk_id, group_school_id) or not self.user_in_school_check(user_id, group_school_id):
+            if not self.user_in_school_check(vk_id, group_school_id) or not self.user_in_school_check(user_id,
+                                                                                                      group_school_id):
                 return -4
 
             # Maybe vk_id is already there?
@@ -256,7 +257,7 @@ class DatabaseHandler:
         return True
 
     def remove_user(self, school_id, target_id, user_id):
-        #Remove user from school
+        # Remove user from school
 
         # Check whether school exists
         if not self.school_check(school_id):
@@ -289,23 +290,20 @@ class DatabaseHandler:
         if not self.user_in_school_check(user_id, school_id):
             return -2
         # Check whether a target is a part of a group
-        cmd =f"SELECT * FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
+        cmd = f"SELECT * FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
         self.cursor.execute(cmd)
         res = self.cursor.fetchall()
         if not res:
             return -3
         # Permission check
         user_role_id = self.fetch_user_school_role(school_id, user_id)
-        if user_role_id > 3: # (must be a Teacher or higher)
+        if user_role_id > 3:  # (must be a Teacher or higher)
             return -1
 
         cmd = f"DELETE FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
         self.cursor.execute(cmd)
         self.connection.commit()
         return True
-
-
-
 
     # Info parse
     def fetch_school_name(self, school_id):
@@ -393,12 +391,19 @@ class DatabaseHandler:
             return False
 
     def fetch_user_schools(self, user_id):
-        pass
-        #TOBEUSED IN !INFO
+        # Returns array of school_ids person is in.
+        # TOBEUSED IN !INFO
+        cmd = f"SELECT school_id FROM roles_membership WHERE vk_id LIKE {user_id}"
+        self.cursor.execute(cmd)
+        res = self.cursor.fetchall()
+        if res:
+            return [x[0] for x in res]
+        else:
+            return False
 
     def fetch_user_groups(self, user_id):
         pass
-        #TOBEUSED IN !INFO
+        # TOBEUSED IN !INFO
 
     def fetch_group_members_ids(self, group_id):
         # Returns list of group members
@@ -406,7 +411,6 @@ class DatabaseHandler:
         self.cursor.execute(cmd)
         vk_ids = self.cursor.fetchall()
         return [x[0] for x in vk_ids]
-
 
     def avail_group_msg_group_ids(self, user_id):
         # Title says it all (available)
