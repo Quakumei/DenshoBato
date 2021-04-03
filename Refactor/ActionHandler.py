@@ -15,6 +15,7 @@ class ActionHandler:
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
             CODE.INFO_GROUP: self.info_group,
+            CODE.INFO_STUDENT: self.info_student,
             # CODE.INFO_SCHOOL_GROUPS: self.info_school_groups,
             CODE.DELETE_GROUP: self.delete_group,
             CODE.DELETE_SCHOOL: self.delete_school,
@@ -434,10 +435,10 @@ class ActionHandler:
         
         Имя: {nickname} (@id{user_id}(@id{user_id}))
         
-        ======== 📚 Группы 📚 ========
+        -+-+-+-+-+- 📚 Группы 📚 -+-+-+-+-+-
         {endl.join(groups_txt)}
         
-        ======== 🏫 Школы 🏫 ========
+        -+-+-+-+-+- 🏫 Школы 🏫 -+-+-+-+-+-
         {endl.join(schools_txt)}
         
         """
@@ -490,7 +491,7 @@ class ActionHandler:
         ======== 📚 Школьные группы 📚 ========\n"""
         for group_id, group_name in school_groups:
             res += f"-- \"{group_name}\" (group_id: {group_id})\n"
-        res += f"\n======== 👨‍🏫 Члены организации 🧓👩‍🦱 ========\n"
+        res += f"\n-+-+-+-+-+- 👨‍🏫 Члены организации 🧓👩‍🦱 -+-+-+-+-+-\n"
 
         prev_role = 0
         cur_role = 0
@@ -514,6 +515,7 @@ class ActionHandler:
 
     def info_group(self, update):
         # sends back message about group_id
+        # TODO: check rights
         msg = update['object']['text']
         user_id = update['object']['from_id']
         args = Utility.parse_arg(msg)
@@ -550,3 +552,37 @@ class ActionHandler:
     #     user_id = update['object']['from_id']
     #     args = Utility.parse_arg(msg)
     #     school_id = args[0]
+
+    def info_student(self, update):
+        # Returns info about a student as if he lived only in school_id.
+        # TODO: Permissions
+        # TODO: Feature: show similar groups.
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
+        school_name = self.db_handler.fetch_school_name(school_id)
+        student_id = args[1]
+        student_name = self.db_handler.fetch_user_name(student_id)
+
+        res = f"""======== 🧍 Человек в {school_name} 🏫 ========
+
+        Имя: {student_name} (@id{student_id}(@id{student_id}))
+        Роль: {self.db_handler.fetch_role_name(self.db_handler.fetch_user_school_role(school_id, student_id))}
+        
+        -+-+-+-+-+- 📚  Группы -+-+-+-+-+-\n"""
+
+        student_groups_ids = self.db_handler.fetch_user_school_groups(school_id, student_id)
+        user_groups_ids = self.db_handler.fetch_user_school_groups(school_id, user_id)
+        groups = [(x, self.db_handler.fetch_group_name(x), x in user_groups_ids) for x in student_groups_ids]
+
+        for group in groups:
+            group_id = group[0]
+            group_name = group[1]
+            group_mutual = group[2]
+            res += f"-- {group_name} {'🟢 ' if group_mutual else '  '}(group_id: {group_id})\n"
+            res += "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
+        if group_mutual:
+            res += "\n🟢 - общие группы"
+        self.vkapi_handler.send_msg(user_id, res)
+        return

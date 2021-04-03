@@ -32,13 +32,14 @@ CREATE_GROUP_WORD = "создать_гр" # !создать_группу school_
 DELETE_SCHOOL_WORD = "удалить_школу" #!удалить_школу school_id school_name (to delete securely)
 DELETE_GROUP_WORD = "удалить_группу" #!удалить_группу group_id group_name (to delete securely)
 INFO_GROUP_WORD = "инфо_гр" #!инфо_группа group_id (check rights)
-INFO_SCHOOL_GROUPS_WORD = "инфо_шк_гр" #!инфо_шк_гр school_id
-
+# INFO_SCHOOL_GROUPS_WORD = "инфо_шк_гр" #!инфо_шк_гр school_id
+INFO_STUDENT_WORD = "инфо_уч" #!инфо_уч school_id student_id
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add words here too
+    INFO_STUDENT_WORD: CODE.INFO_STUDENT,
     INFO_GROUP_WORD: CODE.INFO_GROUP,
     # INFO_SCHOOL_GROUPS_WORD: CODE.INFO_SCHOOL_GROUPS,
     DELETE_GROUP_WORD: CODE.DELETE_GROUP,

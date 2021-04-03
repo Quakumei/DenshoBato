@@ -180,7 +180,7 @@ def send_to_person(update, person_id):
     # print(attachment_str)
     print(urls)
 
-    # очень хуеёвый код
+    # очень плохой код
     msg = "Рассылка от @id" + str(update['object']['from_id']) + ":\n\n" + update['object']['text']
     if attachment_str:
         msg = msg + "\n\nВложения:\n" + str("\n".join(urls))

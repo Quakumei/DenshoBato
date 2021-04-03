@@ -36,7 +36,7 @@ class MsgHandler:
                         if name is False:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    elif value == CodeList.CODE.INVITE_USER or value == CodeList.CODE.ADD_TO_GROUP or value == CodeList.CODE.REMOVE_USER:
+                    elif value == CodeList.CODE.INVITE_USER or value == CodeList.CODE.ADD_TO_GROUP or value == CodeList.CODE.REMOVE_USER or value==CodeList.CODE.INFO_STUDENT:
                         if not name or len(name) != 2 or not name[0].isnumeric() or not name[1].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
@@ -44,7 +44,7 @@ class MsgHandler:
                         if not name or len(name) < 2 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    elif value == CodeList.CODE.INFO_SCHOOL or value == CodeList.CODE.INFO_GROUP or value == CodeList.CODE.INFO_SCHOOL_GROUPS:
+                    elif value == CodeList.CODE.INFO_SCHOOL or value == CodeList.CODE.INFO_GROUP:
                         if not name or len(name) != 1 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
