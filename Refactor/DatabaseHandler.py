@@ -395,18 +395,35 @@ class DatabaseHandler:
 
     def fetch_user_schools(self, user_id):
         # Returns array of school_ids person is in.
-        # TOBEUSED IN !INFO
-        cmd = f"SELECT school_id FROM roles_membership WHERE vk_id LIKE {user_id}"
+        cmd = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id}"
         self.cursor.execute(cmd)
-        res = self.cursor.fetchall()
-        if res:
-            return [x[0] for x in res]
+        school_ids = [x[2] for x in self.cursor.fetchall()]
+        schools = []
+        for school_id in school_ids:
+            cmd = f"SELECT * FROM schools WHERE school_id LIKE {school_id}"
+            self.cursor.execute(cmd)
+            res = self.cursor.fetchall()
+            schools.append(res[0])
+        #RETURN: [(SCHOOL_ID, CREATOR_ID, SCHOOL_NAME,)]
+        if schools:
+            return schools
         else:
             return False
 
     def fetch_user_groups(self, user_id):
-        pass
-        # TOBEUSED IN !INFO
+        # Returns list of tuples *with 3 columns* of groups info.
+        cmd = f"SELECT group_id FROM groups_membership WHERE vk_id LIKE {user_id}"
+        self.cursor.execute(cmd)
+        group_ids = [x[0] for x in self.cursor.fetchall()]
+        groups = []
+        for group_id in group_ids:
+            cmd = f"SELECT * FROM groups WHERE group_id LIKE {group_id}"
+            self.cursor.execute(cmd)
+            groups.append(self.cursor.fetchall()[0])
+        if groups:
+            return groups
+        else:
+            return False
 
     def fetch_group_members(self, group_id):
         # Returns list of group members

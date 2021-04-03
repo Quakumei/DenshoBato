@@ -21,7 +21,7 @@ class ActionHandler:
             CODE.REMOVE_USER_FROM_GROUP: self.expel_from_group,
             CODE.REMOVE_USER: self.expel,
             CODE.UPDATE_ROLE: self.update_role,
-            CODE.DEBUG: self.debug,
+            CODE.USER_INFO: self.user_info,
             CODE.HELP: self.help,
             CODE.ECHO: self.echo,
             CODE.CREATE_SCHOOL: self.create_school,
@@ -35,10 +35,6 @@ class ActionHandler:
 
     def handle_act(self, code, update):
         self.act_table[code](update)
-
-    def debug(self, update):
-        # Debug info
-        pass
 
     def help(self, update):
         # Print help
@@ -350,8 +346,8 @@ class ActionHandler:
 
         # Permission check
         # Users must be in the same clan.
-        vk_id_pm_avail = self.db_handler.fetch_user_schools(vk_id)
-        user_id_pm_avail = self.db_handler.fetch_user_schools(user_id)
+        vk_id_pm_avail = [x[0] for x in self.db_handler.fetch_user_schools(vk_id)]
+        user_id_pm_avail = [x[0] for x in self.db_handler.fetch_user_schools(user_id)]
         if not list(set(vk_id_pm_avail) & set(user_id_pm_avail)):
             err = f"Вы не можете писать пользователю {vk_id}... (Вы должны состоять в одной школе)"
             self.vkapi_handler.send_msg(user_id, err)
@@ -442,3 +438,53 @@ class ActionHandler:
         txt = f"Успех: группа `{group_name_true}` (id: {group_id}) была удалена."
         self.vkapi_handler.send_msg(user_id, txt)
         return
+
+    def user_info(self, update):
+        # Gives user information about his position in system.
+        # Имя: nickname (id: user_id)
+        # Groups_name (group_id: group_id) (school_name: school_name) -------- '[School_name] Group_name - id: id'
+        # Schools_name (school_id: school_id) - corresponding role
+
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+
+        # groups_txt
+        groups_txt = []
+        user_groups = self.db_handler.fetch_user_groups(user_id)
+        if not user_groups:
+            groups_txt = ["Вы не состоите ни в одной группе."]
+        else:
+            for group in user_groups:
+                group_id, school_id, group_name = group
+                group_school_name = self.db_handler.fetch_school_name(school_id)
+                groups_txt.append(f"[\"{group_school_name}\"] \"{group_name}\" - group_id: {group_id}")
+
+
+        #schools_txt
+        user_schools = self.db_handler.fetch_user_schools(user_id)
+        schools_txt = []
+        for school in user_schools:
+            school_id, creator_id, school_name = school
+            role_id = self.db_handler.fetch_user_school_role(school_id, user_id)
+            role_name = self.db_handler.fetch_role_name(role_id)
+            schools_txt.append(f"-- \"{school_name}\" (school_id: {school_id}) - \"{role_name}\"")
+
+
+        nickname = self.db_handler.fetch_user_name(user_id)
+        endl = '\n' # Otherwise it won't work
+
+        # TODO: Add epilepsy emoji
+        txt = f"""======== ℹ Информация ℹ ========
+        Имя: {nickname} (id: {user_id})
+        
+        ======== 📚 Группы 📚 ========
+        {endl.join(groups_txt)}
+        
+        ======== 🏫 Школы 🏫 ========
+        {endl.join(schools_txt)}
+        
+        """
+
+        self.vkapi_handler.send_msg(user_id, txt)
+        return
+

@@ -16,15 +16,15 @@ GROUP_ID = 199935063
 # TODO: Move parameters to config file and load them here
 # Add new words here
 COMMAND_SYMBOL = "!"
-DEBUG_WORD = "дебаг" # !дебаг
+USER_INFO_WORD = "инфо" # !инфо
 HELP_WORD = "помощь" # !помощь
 REGISTER_WORD = "рег" # !рег username
 CREATE_SCHOOL_WORD = "создать_школу" # !создать_школу school_name
-INVITE_USER_WORD = "приг" # !приг school_id vk_id
+INVITE_USER_WORD = "приг_шк" # !приг_шк school_id vk_id
 UPDATE_ROLE_WORD = "изм_роль" # !изм_роль school_id vk_id new_role_id
 REMOVE_USER_WORD = "искл_шк" #!искл_шк school_id target_id
 INFO_SCHOOL_WORD = "инфо_школа" # !инфо_школа school_id
-ADD_TO_GROUP_WORD = "добавить_в_группу" # !добаить_в_группу vk_id group_id
+ADD_TO_GROUP_WORD = "приг_гр" # !приг_гр vk_id group_id
 REMOVE_USER_FROM_GROUP_WORD = "искл_гр" #!искл_гр school_id target_id group_id
 GROUP_MSG_WORD = "сообщ_гр" #!сообщ_гр group_id (сообщение)
 PM_MSG_WORD = "сообщ_чл" #!сообщ_чл vk_id сообщ
@@ -36,7 +36,7 @@ DELETE_GROUP_WORD = "удалить_группу" #!удалить_группу 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
-    # Add them here too
+    # Add words here too
     DELETE_GROUP_WORD: CODE.DELETE_GROUP,
     DELETE_SCHOOL_WORD: CODE.DELETE_SCHOOL,
     PM_MSG_WORD: CODE.PM_MSG,
@@ -50,15 +50,15 @@ CODE_DICT = {
     INVITE_USER_WORD: CODE.INVITE_USER,
     REGISTER_WORD: CODE.REGISTER,
     HELP_WORD: CODE.HELP,
-    DEBUG_WORD: CODE.DEBUG,
+    USER_INFO_WORD: CODE.USER_INFO,
     CREATE_SCHOOL_WORD: CODE.CREATE_SCHOOL
 }
 
 role_handler = RoleHandler()
 db_handler = DatabaseHandler(DB_NAME)
 
-vkapi = VkApiHandler(ACCESS_TOKEN, API_VERSION, GROUP_ID, debug=True)
-act_handler = ActionHandler(vkapi, role_handler, db_handler, debug_mode=True)
+vkapi_handler = VkApiHandler(ACCESS_TOKEN, API_VERSION, GROUP_ID, debug=True)
+act_handler = ActionHandler(vkapi_handler, role_handler, db_handler, debug_mode=True)
 msg_handler = MsgHandler(CODE_DICT, COMMAND_SYMBOL, act_handler)
-vkapi.setMsgHandler(msg_handler)
-vkapi.main_loop()
+vkapi_handler.setMsgHandler(msg_handler)
+vkapi_handler.main_loop()
