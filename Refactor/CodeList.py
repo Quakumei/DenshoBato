@@ -15,3 +15,4 @@ class CODE:
     GROUP_MSG = 13
     PM_MSG = 14
     DELETE_SCHOOL = 15
+    DELETE_GROUP = 16

@@ -40,7 +40,7 @@ class MsgHandler:
                         if not name or len(name) != 2 or not name[0].isnumeric() or not name[1].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    elif value == CodeList.CODE.CREATE_GROUP or value == CodeList.CODE.DELETE_SCHOOL:
+                    elif value == CodeList.CODE.CREATE_GROUP or value == CodeList.CODE.DELETE_SCHOOL or value == CodeList.CODE.DELETE_GROUP:
                         if not name or len(name) < 2 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
@@ -53,7 +53,7 @@ class MsgHandler:
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
                     elif value == CodeList.CODE.GROUP_MSG or value == CodeList.CODE.PM_MSG:
-                        #TODO: \n problem (look into log below)
+                        #TOD0: \n problem (look into log below) - Done.
                         group_id = name[0]
                         if not group_id.isnumeric() and group_id[0].isnumeric():
                             group_id = group_id.split('\n',1)[0]

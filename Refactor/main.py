@@ -29,13 +29,15 @@ REMOVE_USER_FROM_GROUP_WORD = "искл_гр" #!искл_гр school_id target_i
 GROUP_MSG_WORD = "сообщ_гр" #!сообщ_гр group_id (сообщение)
 PM_MSG_WORD = "сообщ_чл" #!сообщ_чл vk_id сообщ
 CREATE_GROUP_WORD = "создать_группу" # !создать_группу school_id group_name
-DELETE_SCHOOL_WORD = "удалить_школу" #!удалить_школу school_id school_name (to delete for sure)
+DELETE_SCHOOL_WORD = "удалить_школу" #!удалить_школу school_id school_name (to delete securely)
+DELETE_GROUP_WORD = "удалить_группу" #!удалить_группу group_id group_name (to delete securely)
 
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add them here too
+    DELETE_GROUP_WORD: CODE.DELETE_GROUP,
     DELETE_SCHOOL_WORD: CODE.DELETE_SCHOOL,
     PM_MSG_WORD: CODE.PM_MSG,
     GROUP_MSG_WORD: CODE.GROUP_MSG,

@@ -14,6 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.DELETE_GROUP:self.delete_group,
             CODE.DELETE_SCHOOL: self.delete_school,
             CODE.PM_MSG: self.pm_msg,
             CODE.GROUP_MSG: self.group_msg,
@@ -413,3 +414,31 @@ class ActionHandler:
         return
 
 
+
+    def delete_group(self, update):
+        # Delete group.
+        msg = update['object']['text']
+        args = Utility.parse_arg(msg)
+
+        # Only '3''s and higher can delete the school.
+        user_id = update['object']['from_id']
+        group_id = args[0]
+        school_id = self.db_handler.fetch_group_school(group_id)
+        role_id = self.db_handler.fetch_user_school_role(school_id, user_id)
+        if not int(role_id) <= int('3'):
+            err = f"Ошибка: недостаточно прав (вам необходимо быть `Teacher` или выше для этого действия)`."
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Check whether group_name is valid
+        group_name_given = " ".join(args[1:])
+        group_name_true = self.db_handler.fetch_group_name(group_id)
+        if group_name_given != group_name_true:
+            err = f"Ошибка: неверно введено название группы (для вашей безопасности)."
+            self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        self.db_handler.delete_group(group_id)
+        txt = f"Успех: группа `{group_name_true}` (id: {group_id}) была удалена."
+        self.vkapi_handler.send_msg(user_id, txt)
+        return

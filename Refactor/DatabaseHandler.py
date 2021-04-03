@@ -487,3 +487,11 @@ class DatabaseHandler:
         self.cursor.execute(cmd)
         self.connection.commit()
         return True
+
+    # TODO: maybe rework several fetch_X's_Y(X_id) functions to fetch_X's(X_id, Ys)
+    def fetch_group_school(self, group_id):
+        # Returns id of a school to which group_id group belongs
+        cmd = f"SELECT school_id FROM groups where group_id LIKE {group_id}"
+        self.cursor.execute(cmd)
+        res = self.cursor.fetchall()
+        return res[0][0]
