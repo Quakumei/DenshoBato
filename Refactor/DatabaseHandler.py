@@ -189,6 +189,8 @@ class DatabaseHandler:
             cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
             self.cursor.execute(cmd3)
             self.connection.commit()
+
+
             return True
         except:
             return -1
@@ -287,10 +289,10 @@ class DatabaseHandler:
             return -5
         # Check whether user exists in school or not
         if not self.user_in_school_check(target_id, school_id):
-            return -2
+            return -21
         # Check whether user exists in school or not
         if not self.user_in_school_check(user_id, school_id):
-            return -2
+            return -22
         # Check whether a target is a part of a group
         cmd = f"SELECT * FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
         self.cursor.execute(cmd)

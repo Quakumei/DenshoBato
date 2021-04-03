@@ -120,6 +120,10 @@ class ActionHandler:
         else:
             txt = f"Вы успешно пригласили пользователя {vk_id} в {school_id}."
             self.vkapi_handler.send_msg(user_id, txt)
+            notification = f"🔔 Уведомление. 🔔\n"
+            notification += f"Вы были приняты в качестве {self.db_handler.fetch_role_name(5)} в школу {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id})" \
+                            f"\n(@id{user_id}(инициатор))."
+            self.vkapi_handler.send_msg(vk_id, notification)
 
     def create_group(self, update):
         # Create group with school_name in school_id. Return user its id.
@@ -167,6 +171,11 @@ class ActionHandler:
         else:
             txt = f"Вы успешно добавили {vk_id} в группу {group_id}."
             self.vkapi_handler.send_msg(user_id, txt)
+            notification = f"""🔔 Уведомление. 🔔\nВы были добавлены в группу {self.db_handler.fetch_group_name(group_id)} (group_id: {group_id}).
+            (@id{user_id}(инициатор))"""
+            self.vkapi_handler.send_msg(vk_id, notification)
+
+
 
     def update_role(self, update):
         # Changes role of the subject
@@ -176,26 +185,35 @@ class ActionHandler:
         school_id = args[0]
         vk_id = args[1]
         new_role_id = args[2]
+        last_role_id = self.db_handler.fetch_user_school_role(school_id, vk_id)
 
         code = self.db_handler.update_role(school_id, vk_id, new_role_id, user_id)
         if code == -1:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
             self.vkapi_handler.send_msg(user_id, err)
+
         elif code == -4:
             err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы."
             self.vkapi_handler.send_msg(user_id, err)
+
         elif code == -2:
             err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
             self.vkapi_handler.send_msg(user_id, err)
+
         elif code == -3:
             err = f"Ошибка: Нет роли {new_role_id}..."
             self.vkapi_handler.send_msg(user_id, err)
+
         elif code == -5:
             err = f"Ошибка: Нет школы {school_id}..."
             self.vkapi_handler.send_msg(user_id, err)
         if code is True:
             txt = f"Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
+            notification = f"🔔 Уведомление. 🔔\n"
+            notification += f"Произошла смена вашей роли в {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id}):{self.db_handler.fetch_role_name(last_role_id)} --> {self.db_handler.fetch_role_name(new_role_id)}\n(@id{user_id}(инициатор))."
+            self.vkapi_handler.send_msg(vk_id, notification)
+
 
     def expel(self, update):
         # Removes user from school
@@ -203,24 +221,33 @@ class ActionHandler:
         user_id = update['object']['from_id']
         args = Utility.parse_arg(msg)
         school_id = args[0]
-        vk_id = args[1]
+        target_id = args[1]
 
-        code = self.db_handler.remove_user(school_id, vk_id, user_id)
+        code = self.db_handler.remove_user(school_id, target_id, user_id)
         if code == -1:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
             self.vkapi_handler.send_msg(user_id, err)
+            return
         elif code == -4:
             err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы."
             self.vkapi_handler.send_msg(user_id, err)
+            return
         elif code == -2:
-            err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
+            err = f"Ошибка: Ученик {target_id} не является участником {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id})..."
             self.vkapi_handler.send_msg(user_id, err)
+            return
         elif code == -5:
-            err = f"Ошибка: Нет школы {school_id}..."
+            err = f"Ошибка: Нет школы c school_id: {school_id}..."
             self.vkapi_handler.send_msg(user_id, err)
+            return
         elif code is True:
-            txt = f"Вы успешно исключили '{vk_id}' из школы '{school_id}'."
+            txt = f"Вы успешно исключили '{target_id}' из школы '{school_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
+
+        # Sad letter
+        notification = f"""🔔 Уведомление. 🔔
+        Вы были исключены из школы '{self.db_handler.fetch_school_name(school_id)}' (school_id: {school_id}) \n(@id{user_id}(инициатор))."""
+        self.vkapi_handler.send_msg(target_id, notification)
 
     def expel_from_group(self, update):
         msg = update['object']['text']
@@ -239,6 +266,12 @@ class ActionHandler:
         else:
             err = f"Что-то пошло не так [Код ошибки: {code}]..."
             self.vkapi_handler.send_msg(user_id, err)
+            return
+
+        # Sad letter
+        notification = f"""🔔 Уведомление. 🔔
+        Вы были исключены из группы '{self.db_handler.fetch_group_name(group_id)}' (group_id: {group_id}) \n(@id{user_id}(инициатор))"""
+        self.vkapi_handler.send_msg(target_id, notification)
 
     def group_msg(self, update):
         msg = update['object']['text']
@@ -366,8 +399,18 @@ class ActionHandler:
             self.vkapi_handler.send_msg(user_id, err)
             return
 
+        # For sad message
+        former_members_ids = self.db_handler.fetch_school_members(school_id)
+
         self.db_handler.delete_school(school_id)
         txt = f"Успех: школа `{school_name_true}` (id: {school_id}) была удалена."
+
+        # Send poor message to everyone.
+        for member_id in former_members_ids:
+            notification = f"""🔔 Уведомление. 🔔
+        Школа '{school_name_true}' (id: {school_id}) была удалена. Как следствие, вы больше не являяетесь её членом.  \n(@id{user_id}(инициатор))"""
+            self.vkapi_handler.send_msg(member_id, notification)
+
         self.vkapi_handler.send_msg(user_id, txt)
         return
 
@@ -393,9 +436,18 @@ class ActionHandler:
             err = f"Ошибка: неверно введено название группы (для вашей безопасности)."
             self.vkapi_handler.send_msg(user_id, err)
             return
+        # For sad
+        former_members_ids = self.db_handler.fetch_group_members(group_id)
 
         self.db_handler.delete_group(group_id)
         txt = f"Успех: группа `{group_name_true}` (id: {group_id}) была удалена."
+
+        # Send poor message to everyone.
+        for member_id in former_members_ids:
+            notification = f"""🔔 Уведомление. 🔔
+                Группа '{group_name_true}' (id: {group_id}) была удалена. Как следствие, вы больше не являяетесь её членом. \n(@id{user_id}(инициатор))"""
+            self.vkapi_handler.send_msg(member_id, notification)
+
         self.vkapi_handler.send_msg(user_id, txt)
         return
 
@@ -581,8 +633,8 @@ class ActionHandler:
             group_name = group[1]
             group_mutual = group[2]
             res += f"-- {group_name} {'🟢 ' if group_mutual else '  '}(group_id: {group_id})\n"
-            res += "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
-        if group_mutual:
+        res += "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
+        if True in [x[2] for x in groups]:
             res += "\n🟢 - общие группы"
         self.vkapi_handler.send_msg(user_id, res)
         return
