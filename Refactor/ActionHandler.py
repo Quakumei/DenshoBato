@@ -14,7 +14,7 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
-            CODE.DELETE_GROUP:self.delete_group,
+            CODE.DELETE_GROUP: self.delete_group,
             CODE.DELETE_SCHOOL: self.delete_school,
             CODE.PM_MSG: self.pm_msg,
             CODE.GROUP_MSG: self.group_msg,
@@ -44,8 +44,7 @@ class ActionHandler:
             msg = help_file.read()
         # msg = "".join(msg) # % (HELP_WORD, DEBUG_WORD, CREATE_SCHOOL_WORD, ADD_WORD, WHOIN_WORD, GROUPSEND_WORD)
         self.vkapi_handler.send_msg(user_id, msg)
-        # Help info
-        pass
+        return
 
     def echo(self, update):
         # Send message back
@@ -113,10 +112,10 @@ class ActionHandler:
             err = f"Ошибка: Пользователь {vk_id} не зарегистрирован в системе..."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}"
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}."
             self.vkapi_handler.send_msg(user_id, err)
         else:
-            txt = f"Вы успешно пригласили пользователя {vk_id} в {school_id}"
+            txt = f"Вы успешно пригласили пользователя {vk_id} в {school_id}."
             self.vkapi_handler.send_msg(user_id, txt)
 
     def create_group(self, update):
@@ -129,7 +128,7 @@ class ActionHandler:
 
         code = self.db_handler.create_group(group_name, school_id, user_id)
         if code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}"
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -1:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
@@ -151,7 +150,7 @@ class ActionHandler:
 
         code = self.db_handler.add_to_group(group_id, vk_id, user_id)
         if code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -1:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
@@ -163,46 +162,8 @@ class ActionHandler:
             err = f"Ошибка: Пользователь {vk_id} не зарегистрирован в системе..."
             self.vkapi_handler.send_msg(user_id, err)
         else:
-            txt = f"Вы успешно добавили {user_id} в группу {group_id}"
+            txt = f"Вы успешно добавили {user_id} в группу {group_id}."
             self.vkapi_handler.send_msg(user_id, txt)
-
-    def info_school(self, update):
-        msg = update['object']['text']
-        user_id = update['object']['from_id']
-        args = Utility.parse_arg(msg)
-        school_id = args[0]
-
-        # Fetch data
-        school_name = self.db_handler.fetch_school_name(school_id)
-        school_groups_ids = self.db_handler.fetch_school_groups(school_id)
-        school_groups_names = []
-        for group_id in school_groups_ids:
-            school_groups_names.append(self.db_handler.fetch_group_name(group_id))
-
-        school_groups = []
-        for i in range(len(school_groups_ids)):
-            school_groups.append((school_groups_ids[i], school_groups_names[i]))
-
-        members_ids = self.db_handler.fetch_school_members(school_id)
-        members_names = []
-        members_groups = []
-        members_roles = []
-        for member_id in members_ids:
-            members_names.append(self.db_handler.fetch_user_name(member_id))
-            # Very bad code you could do better
-            members_groups.append([self.db_handler.fetch_group_name(x) for x in
-                                   self.db_handler.fetch_user_school_groups(school_id, member_id)])
-            members_roles.append(self.db_handler.fetch_user_school_role(school_id, member_id))
-
-        members = []
-        for i in range(len(members_ids)):
-            members.append((members_roles[i], members_names[i], members_groups[i], members_ids[i]))
-
-        # Now we have school_groups (group_id , group_name)
-        # Now we have members (role_id, name, group_names, vk_id)
-
-        txt = Utility.school_info((school_id, school_name), school_groups, members, self.db_handler)
-        self.vkapi_handler.send_msg(user_id, txt)
 
     def update_role(self, update):
         # Changes role of the subject
@@ -218,7 +179,7 @@ class ActionHandler:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -2:
             err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
@@ -230,7 +191,7 @@ class ActionHandler:
             err = f"Ошибка: Нет школы {school_id}..."
             self.vkapi_handler.send_msg(user_id, err)
         if code is True:
-            txt = f"Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'"
+            txt = f"Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
 
     def expel(self, update):
@@ -246,7 +207,7 @@ class ActionHandler:
             err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы"
+            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы."
             self.vkapi_handler.send_msg(user_id, err)
         elif code == -2:
             err = f"Ошибка: Ученик {vk_id} не является участником {school_id}..."
@@ -376,11 +337,9 @@ class ActionHandler:
         for id in mailing_list_ids:
             self.vkapi_handler.send_msg(id, msg, attachment_str)
 
-
         txt = f"Сообщение успешно отправлено."
         self.vkapi_handler.send_msg(user_id, txt)
         return
-
 
     def delete_school(self, update):
         # Delete school.
@@ -408,8 +367,6 @@ class ActionHandler:
         txt = f"Успех: школа `{school_name_true}` (id: {school_id}) была удалена."
         self.vkapi_handler.send_msg(user_id, txt)
         return
-
-
 
     def delete_group(self, update):
         # Delete group.
@@ -459,8 +416,7 @@ class ActionHandler:
                 group_school_name = self.db_handler.fetch_school_name(school_id)
                 groups_txt.append(f"[\"{group_school_name}\"] \"{group_name}\" - group_id: {group_id}")
 
-
-        #schools_txt
+        # schools_txt
         user_schools = self.db_handler.fetch_user_schools(user_id)
         schools_txt = []
         for school in user_schools:
@@ -469,13 +425,12 @@ class ActionHandler:
             role_name = self.db_handler.fetch_role_name(role_id)
             schools_txt.append(f"-- \"{school_name}\" (school_id: {school_id}) - \"{role_name}\"")
 
-
         nickname = self.db_handler.fetch_user_name(user_id)
-        endl = '\n' # Otherwise it won't work
+        endl = '\n'  # Otherwise it won't work
 
-        # TODO: Add epilepsy emoji
         txt = f"""======== ℹ Информация ℹ ========
-        Имя: {nickname} (id: {user_id})
+        
+        Имя: {nickname} (@id{user_id}(@id{user_id}))
         
         ======== 📚 Группы 📚 ========
         {endl.join(groups_txt)}
@@ -488,3 +443,69 @@ class ActionHandler:
         self.vkapi_handler.send_msg(user_id, txt)
         return
 
+    def info_school(self, update):
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        school_id = args[0]
+
+        # Fetch data
+        school_name = self.db_handler.fetch_school_name(school_id)
+        school_groups_ids = self.db_handler.fetch_school_groups(school_id)
+        school_groups_names = []
+        for group_id in school_groups_ids:
+            school_groups_names.append(self.db_handler.fetch_group_name(group_id))
+
+        school_groups = []
+        for i in range(len(school_groups_ids)):
+            school_groups.append((school_groups_ids[i], school_groups_names[i]))
+
+        members_ids = self.db_handler.fetch_school_members(school_id)
+        members_names = []
+        members_groups = []
+        members_roles = []
+        for member_id in members_ids:
+            members_names.append(self.db_handler.fetch_user_name(member_id))
+            # Very bad code you could do better
+            members_groups.append([self.db_handler.fetch_group_name(x) for x in
+                                   self.db_handler.fetch_user_school_groups(school_id, member_id)])
+            members_roles.append(self.db_handler.fetch_user_school_role(school_id, member_id))
+
+        members = []
+        # Now we have school_groups (group_id , group_name)
+        # Now we have members (role_id, name, group_names, vk_id)
+        # Based on data given (school is a tuple (id,school_name))
+        # Return text message for the user
+        members = sorted(members, key=lambda x: int(x[0]))
+
+        for i in range(len(members_ids)):
+            members.append((members_roles[i], members_names[i], members_groups[i], members_ids[i]))
+
+        res = f"""======== ℹ Информация о школе 🏫 ========
+        
+        Название: '{school_name}' (school_id: {school_id})
+        
+        ======== 📚 Школьные группы 📚 ========\n"""
+        for group_id, group_name in school_groups:
+            res += f"-- \"{group_name}\" (group_id: {group_id})\n"
+        res += f"\n======== 👨‍🏫 Члены организации 🧓👩‍🦱 ========\n"
+
+        prev_role = 0
+        cur_role = 0
+        for member in members:
+            cur_role = member[0]
+            if cur_role != prev_role:
+                res = res + f"\n{self.db_handler.fetch_role_name(cur_role)}:\n"
+                prev_role = cur_role
+            # res += f'-- {member[1]} ({", ".join(member[2])}) [id{member[3]}]\n'
+            res += f'-- {member[1]} (@id{member[3]}(@id{member[3]}))\n'
+        res += '\n' + "-" * 70 + '\n'
+        res += f'Итого: {len(members)} участников.\n'
+
+        self.vkapi_handler.send_msg(user_id, res)
+        return
+
+        # Now we have school_groups (group_id , group_name)
+        # Now we have members (role_id, name, group_names, vk_id)
+
+        # txt = Utility.school_info((school_id, school_name), school_groups, members, self.db_handler)

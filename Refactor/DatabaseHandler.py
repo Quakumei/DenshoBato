@@ -35,11 +35,11 @@ class DatabaseHandler:
         print(results)
         if not results:
             init_roles_cmds = [
-                f"INSERT INTO roles (permissions, role_name) VALUES ({255},\"{'Creator'}\")",
-                f"INSERT INTO roles (permissions, role_name) VALUES ({127},\"{'Admin'}\")",
-                f"INSERT INTO roles (permissions, role_name) VALUES ({47},\"{'Teacher'}\")",
-                f"INSERT INTO roles (permissions, role_name) VALUES ({3}, \"{'Student'}\")",
-                f"INSERT INTO roles (permissions, role_name) VALUES ({1}, \"{'Reader'}\")",
+                f"INSERT INTO roles (permissions, role_name) VALUES ({255},\"{'Создатель'}\")",
+                f"INSERT INTO roles (permissions, role_name) VALUES ({127},\"{'Администратор'}\")",
+                f"INSERT INTO roles (permissions, role_name) VALUES ({47},\"{'Преподаватель'}\")",
+                f"INSERT INTO roles (permissions, role_name) VALUES ({3}, \"{'Ученик'}\")",
+                f"INSERT INTO roles (permissions, role_name) VALUES ({1}, \"{'Вольный слушатель'}\")",
                 f"SELECT * FROM roles"
             ]
             print(init_roles_cmds)
@@ -112,7 +112,6 @@ class DatabaseHandler:
             if self.user_in_school_check(vk_id, school_id):
                 return -2
 
-            # todone: Upgrade that to role check? - Not necessary. Readers won't get anything unless they are put into groups.
             # Check whether the inviter is atleast member of school
             if not self.user_in_school_check(inviter_id, school_id):
                 return -4
@@ -123,7 +122,8 @@ class DatabaseHandler:
             self.connection.commit()
             return True
         except Exception as e:
-            print(f"{'='*25+' '+'EXCEPTION OCCURED'+' '+'='*25}\nIt says: {e}\n{'='*(50+len('EXCEPTION OCCURED')+2)}")
+            print(
+                f"{'=' * 25 + ' ' + 'EXCEPTION OCCURED' + ' ' + '=' * 25}\nIt says: {e}\n{'=' * (50 + len('EXCEPTION OCCURED') + 2)}")
             return -1
 
     def create_group(self, group_name, school_id, user_id):
@@ -348,8 +348,11 @@ class DatabaseHandler:
         cmd1 = f"SELECT role_id FROM roles_membership WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
         self.cursor.execute(cmd1)
         res = self.cursor.fetchall()
-        role_id = res[0][0]
-        return role_id
+        if res:
+            role_id = res[0][0]
+            return role_id
+        else:
+            return False
 
     def fetch_user_name(self, vk_id):
         # Return username of vk_id
@@ -364,8 +367,10 @@ class DatabaseHandler:
         cmd1 = f"SELECT group_name FROM groups WHERE group_id LIKE {group_id}"
         self.cursor.execute(cmd1)
         res = self.cursor.fetchall()
-        group_name = res[0][0]
-        return group_name
+        if res:
+            return res[0][0]
+        else:
+            return False
 
     def fetch_school_groups(self, school_id):
         # Returns school groups ids of school_id school
@@ -404,7 +409,7 @@ class DatabaseHandler:
             self.cursor.execute(cmd)
             res = self.cursor.fetchall()
             schools.append(res[0])
-        #RETURN: [(SCHOOL_ID, CREATOR_ID, SCHOOL_NAME,)]
+        # RETURN: [(SCHOOL_ID, CREATOR_ID, SCHOOL_NAME,)]
         if schools:
             return schools
         else:
@@ -511,4 +516,7 @@ class DatabaseHandler:
         cmd = f"SELECT school_id FROM groups where group_id LIKE {group_id}"
         self.cursor.execute(cmd)
         res = self.cursor.fetchall()
-        return res[0][0]
+        if res:
+            return res[0][0]
+        else:
+            return False
