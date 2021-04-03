@@ -14,6 +14,8 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            CODE.INFO_GROUP: self.info_group,
+            # CODE.INFO_SCHOOL_GROUPS: self.info_school_groups,
             CODE.DELETE_GROUP: self.delete_group,
             CODE.DELETE_SCHOOL: self.delete_school,
             CODE.PM_MSG: self.pm_msg,
@@ -162,7 +164,7 @@ class ActionHandler:
             err = f"Ошибка: Пользователь {vk_id} не зарегистрирован в системе..."
             self.vkapi_handler.send_msg(user_id, err)
         else:
-            txt = f"Вы успешно добавили {user_id} в группу {group_id}."
+            txt = f"Вы успешно добавили {vk_id} в группу {group_id}."
             self.vkapi_handler.send_msg(user_id, txt)
 
     def update_role(self, update):
@@ -509,3 +511,42 @@ class ActionHandler:
         # Now we have members (role_id, name, group_names, vk_id)
 
         # txt = Utility.school_info((school_id, school_name), school_groups, members, self.db_handler)
+
+    def info_group(self, update):
+        # sends back message about group_id
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
+        args = Utility.parse_arg(msg)
+        group_id = args[0]
+        group_name = self.db_handler.fetch_group_name(group_id)
+
+        members_ids = self.db_handler.fetch_group_members(group_id)
+        members = []
+        school_id = self.db_handler.fetch_group_school(group_id)
+        for member_id in members_ids:
+            member_name = self.db_handler.fetch_user_name(member_id)
+            members.append((self.db_handler.fetch_user_school_role(school_id, member_id), member_name, 0, member_id))
+        members = sorted(members, key=lambda x: int(x[0]))
+        res = f"""======== Группа 📚 {group_name} ========
+        """
+        # - 👩‍🦱 Члены группы 🧓 -
+        cur_role = 0
+        prev_role = 0
+        for member in members:
+            cur_role = member[0]
+            if cur_role != prev_role:
+                res = res + f"\n{self.db_handler.fetch_role_name(cur_role)}:\n"
+                prev_role = cur_role
+            # res += f'-- {member[1]} ({", ".join(member[2])}) [id{member[3]}]\n'
+            res += f'-- {member[1]} (@id{member[3]}(@id{member[3]}))\n'
+        res += '\n' + "-" * 70 + '\n'
+        res += f'Итого: {len(members)} участников.\n'
+
+        self.vkapi_handler.send_msg(user_id, res)
+
+    # def info_school_groups(self, update):
+    #     # sends back message about all group_ids of school_id
+    #     msg = update['object']['text']
+    #     user_id = update['object']['from_id']
+    #     args = Utility.parse_arg(msg)
+    #     school_id = args[0]

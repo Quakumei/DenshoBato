@@ -385,8 +385,10 @@ class DatabaseHandler:
         cmd1 = f"SELECT role_name FROM roles WHERE role_id LIKE {role_id}"
         self.cursor.execute(cmd1)
         res = self.cursor.fetchall()
-        role_name = res[0][0]
-        return role_name
+        if res:
+            return res[0][0]
+        else:
+            return False
 
     def group_check(self, group_id):
         # Check groups for existence

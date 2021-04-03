@@ -16,3 +16,5 @@ class CODE:
     PM_MSG = 14
     DELETE_SCHOOL = 15
     DELETE_GROUP = 16
+    INFO_GROUP = 17
+    # INFO_SCHOOL_GROUPS = 18

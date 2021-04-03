@@ -44,7 +44,7 @@ class MsgHandler:
                         if not name or len(name) < 2 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
-                    elif value == CodeList.CODE.INFO_SCHOOL:
+                    elif value == CodeList.CODE.INFO_SCHOOL or value == CodeList.CODE.INFO_GROUP or value == CodeList.CODE.INFO_SCHOOL_GROUPS:
                         if not name or len(name) != 1 or not name[0].isnumeric():
                             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
                             return
