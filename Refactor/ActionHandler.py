@@ -35,17 +35,19 @@ class ActionHandler:
             CODE.ADD_TO_GROUP: self.add_to_group,
             CODE.INFO_SCHOOL: self.info_school
         }
+        self.load_help()
 
     def handle_act(self, code, update):
         self.act_table[code](update)
 
-    def load_help(self, help):
+    def load_help(self):
         # Loads help string (use from another file)
         self.help = help
 
     def help(self, update):
         # Print help
         # TODO fix code words in help
+        #msg = update['object']['text']
         user_id = update['object']['from_id']
         with open("help.txt") as help_file:
             msg = help_file.read()
@@ -549,6 +551,7 @@ class ActionHandler:
             res += f"-- \"{group_name}\" (group_id: {group_id})\n"
         res += f"\n-+-+-+- 👨‍🏫 Члены организации 🧓👩‍🦱 -+-+-+-\n"
 
+        members = sorted(members, key=lambda x: int(x[0]))
         prev_role = 0
         cur_role = 0
         for member in members:
@@ -585,8 +588,7 @@ class ActionHandler:
             member_name = self.db_handler.fetch_user_name(member_id)
             members.append((self.db_handler.fetch_user_school_role(school_id, member_id), member_name, 0, member_id))
         members = sorted(members, key=lambda x: int(x[0]))
-        res = f"""======== Группа 📚 {group_name} ========
-        """
+        res = f"======== Группа 📚 {group_name} ========\n"
         # - 👩‍🦱 Члены группы 🧓 -
         cur_role = 0
         prev_role = 0
