@@ -39,6 +39,10 @@ class ActionHandler:
     def handle_act(self, code, update):
         self.act_table[code](update)
 
+    def load_help(self, help):
+        # Loads help string (use from another file)
+        self.help = help
+
     def help(self, update):
         # Print help
         # TODO fix code words in help
@@ -172,7 +176,7 @@ class ActionHandler:
             txt = f"Вы успешно добавили {vk_id} в группу {group_id}."
             self.vkapi_handler.send_msg(user_id, txt)
             notification = f"""🔔 Уведомление. 🔔\nВы были добавлены в группу {self.db_handler.fetch_group_name(group_id)} (group_id: {group_id}).
-            (@id{user_id}(инициатор))"""
+(@id{user_id}(инициатор))"""
             self.vkapi_handler.send_msg(vk_id, notification)
 
 
@@ -246,7 +250,7 @@ class ActionHandler:
 
         # Sad letter
         notification = f"""🔔 Уведомление. 🔔
-        Вы были исключены из школы '{self.db_handler.fetch_school_name(school_id)}' (school_id: {school_id}) \n(@id{user_id}(инициатор))."""
+Вы были исключены из школы '{self.db_handler.fetch_school_name(school_id)}' (school_id: {school_id}) \n(@id{user_id}(инициатор))."""
         self.vkapi_handler.send_msg(target_id, notification)
 
     def expel_from_group(self, update):
@@ -270,7 +274,7 @@ class ActionHandler:
 
         # Sad letter
         notification = f"""🔔 Уведомление. 🔔
-        Вы были исключены из группы '{self.db_handler.fetch_group_name(group_id)}' (group_id: {group_id}) \n(@id{user_id}(инициатор))"""
+Вы были исключены из группы '{self.db_handler.fetch_group_name(group_id)}' (group_id: {group_id}) \n(@id{user_id}(инициатор))"""
         self.vkapi_handler.send_msg(target_id, notification)
 
     def group_msg(self, update):
@@ -408,7 +412,7 @@ class ActionHandler:
         # Send poor message to everyone.
         for member_id in former_members_ids:
             notification = f"""🔔 Уведомление. 🔔
-        Школа '{school_name_true}' (id: {school_id}) была удалена. Как следствие, вы больше не являяетесь её членом.  \n(@id{user_id}(инициатор))"""
+Школа '{school_name_true}' (id: {school_id}) была удалена. Как следствие, вы больше не являяетесь её членом.  \n(@id{user_id}(инициатор))"""
             self.vkapi_handler.send_msg(member_id, notification)
 
         self.vkapi_handler.send_msg(user_id, txt)
@@ -485,12 +489,12 @@ class ActionHandler:
 
         txt = f"""======== ℹ Информация ℹ ========
         
-        Имя: {nickname} (@id{user_id}(@id{user_id}))
+Имя: {nickname} (@id{user_id}(@id{user_id}))
         
-        -+-+-+-+-+- 📚 Группы 📚 -+-+-+-+-+-
+-+-+-+-+-+- 📚 Группы 📚 -+-+-+-+-+-
         {endl.join(groups_txt)}
         
-        -+-+-+-+-+- 🏫 Школы 🏫 -+-+-+-+-+-
+-+-+-+-+-+- 🏫 Школы 🏫 -+-+-+-+-+-
         {endl.join(schools_txt)}
         
         """
@@ -538,12 +542,12 @@ class ActionHandler:
 
         res = f"""======== ℹ Информация о школе 🏫 ========
         
-        Название: '{school_name}' (school_id: {school_id})
+Название: '{school_name}' (school_id: {school_id})
         
-        ======== 📚 Школьные группы 📚 ========\n"""
+======== 📚 Школьные группы 📚 ========\n"""
         for group_id, group_name in school_groups:
             res += f"-- \"{group_name}\" (group_id: {group_id})\n"
-        res += f"\n-+-+-+-+-+- 👨‍🏫 Члены организации 🧓👩‍🦱 -+-+-+-+-+-\n"
+        res += f"\n-+-+-+- 👨‍🏫 Члены организации 🧓👩‍🦱 -+-+-+-\n"
 
         prev_role = 0
         cur_role = 0
@@ -554,7 +558,7 @@ class ActionHandler:
                 prev_role = cur_role
             # res += f'-- {member[1]} ({", ".join(member[2])}) [id{member[3]}]\n'
             res += f'-- {member[1]} (@id{member[3]}(@id{member[3]}))\n'
-        res += '\n' + "-" * 70 + '\n'
+        res += '\n' + "-" * 60 + '\n'
         res += f'Итого: {len(members)} участников.\n'
 
         self.vkapi_handler.send_msg(user_id, res)
@@ -619,10 +623,10 @@ class ActionHandler:
 
         res = f"""======== 🧍 Человек в {school_name} 🏫 ========
 
-        Имя: {student_name} (@id{student_id}(@id{student_id}))
-        Роль: {self.db_handler.fetch_role_name(self.db_handler.fetch_user_school_role(school_id, student_id))}
+Имя: {student_name} (@id{student_id}(@id{student_id}))
+Роль: {self.db_handler.fetch_role_name(self.db_handler.fetch_user_school_role(school_id, student_id))}
         
-        -+-+-+-+-+- 📚  Группы -+-+-+-+-+-\n"""
+-+-+-+-+-+- 📚  Группы -+-+-+-+-+-\n"""
 
         student_groups_ids = self.db_handler.fetch_user_school_groups(school_id, student_id)
         user_groups_ids = self.db_handler.fetch_user_school_groups(school_id, user_id)

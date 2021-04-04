@@ -1,3 +1,5 @@
+# Here comes everything I didn't know where to put
+
 def parse_arg(cmd):
     """
     Вычленяет то, что идёт после команды в сообщении.
@@ -21,14 +23,13 @@ def parse_arg(cmd):
     return args
 
 
-# Some unit tests
-# TODO: move unit tests to an other file.
+# Few unit tests
 assert (parse_arg("!создать_школу Лицей №86  ") == ["Лицей", "№86"]), "Wrong parse_arg result 1."
 assert (parse_arg("!создать_школу       ") is False), "Wrong parse_arg result 2."
 
 
 def parse_attachments2str(attachments):
-    # Some code I wrote two months ago I don't remember how it works now
+    # Used in sending messages with attachments via VkApiHandler.py
     res = ""
     urls = []
     for a in attachments:
@@ -58,5 +59,3 @@ def parse_attachments2str(attachments):
     if res == "":
         return "", ""
     return res[:-1], urls
-
-
