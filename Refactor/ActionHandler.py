@@ -9,7 +9,7 @@ class ActionHandler:
         self.vkapi_handler = vkapi_handler
         self.role_handler = role_handler
         self.db_handler = db_handler
-
+        self.help_text = self.load_help()
         self.test = 0
 
         self.act_table = {
@@ -35,24 +35,74 @@ class ActionHandler:
             CODE.ADD_TO_GROUP: self.add_to_group,
             CODE.INFO_SCHOOL: self.info_school
         }
-        self.load_help()
 
     def handle_act(self, code, update):
         self.act_table[code](update)
 
     def load_help(self):
         # Loads help string (use from another file)
-        self.help = help
+        # Load CODE_DICT 'in reverse' so we can call ct[CODE] to get string
+        ct = {}
+        for key, value in CODE_DICT.items():
+            ct[value] = key
+
+        txt = f"""
+Привет! Я цифровой голубь-почтальон Бато. Моя работа - вовремя доставлять информацию от учителей. 😉
+
+~~~~ Команды ~~~~
+· !{ct[CODE.HELP]} - вывести это сообщение.
+
+-- 🖊️ Регистрация и вы 
+
+· !{ct[CODE.REGISTER]} [username] - зарегистрироваться в системе с именем username. Этой же командой можно сменить себе имя.
+· !{ct[CODE.USER_INFO]} - вывести список групп и школ, в которых вы числитесь.
+
+
+-- ℹ Информация ️
+
+· !{ct[CODE.INFO_SCHOOL]} [school_id] -  вывести информацию о школе (все члены).
+· !{ct[CODE.INFO_GROUP]} [group_id] - вывести информацию о группе и её составе (все члены).
+· !{ct[CODE.INFO_STUDENT]} [school_id] [vk_id] - вывести информацию о пользователе как члене школы (все члены).
+
+
+-- 📚🏫 Операции с группами и школами 
+
+· !{ct[CODE.CREATE_SCHOOL]} [school_name] - создать школу с именем school_name. 
+· !{ct[CODE.CREATE_GROUP]} [school_id] [group_name] - создать группу с именем group_name в школе с school_id (Преподаватель).
+· !{ct[CODE.DELETE_SCHOOL]} [school_id] [school_name] - удалить школу (Создатель).
+· !{ct[CODE.DELETE_GROUP]} [group_id] [group_name] - удалить группу (Преподаватель).
+
+
+-- 👨👦👧 Операции над пользователями
+
+
+· !{ct[CODE.INVITE_USER]} [school_id] [vk_id] - пригласить (добавить) пользователя в школу как вольного слушателя (Ученик).
+· !{ct[CODE.ADD_TO_GROUP]} [group_id] [vk_id] - добавить пользователя в группу (Преподаватель).
+· !{ct[CODE.UPDATE_ROLE]} [school_id] [vk_id] [new_role_id] - сменить роль пользователю (Администратор).
+· !{ct[CODE.REMOVE_USER]} [school_id] [vk_id] - исключить пользователя из школы (Преподаватель).
+· !{ct[CODE.REMOVE_USER_FROM_GROUP]} [school_id] [group_id] [vk_id] - исключить пользователя из группы (Преподаватель).
+
+
+-- ✉ Отправка и рассылка сообщений
+
+· !{ct[CODE.PM_MSG]} [vk_id] - отправить сообщение пользователю.
+· !{ct[CODE.GROUP_MSG]} [group_id] - отправить сообщение группе (Преподаватель). 
+
+~~~~~~~~~~~~~~~~
+
+Бот разработан в рамках школьного проекта ГОУ ЯО "Лицей №86" в 2021 году. 
+
+Если найдёте ошибки/баги, сообщите мне!
+Разработчик: @id388032588(Тампио Илья), ученик 11Б класса.
+Github: github.com/Quakumei Telegram: @yasumi404
+"""
+        return txt
 
     def help(self, update):
         # Print help
-        # TODO fix code words in help
-        #msg = update['object']['text']
+        # msg = update['object']['text']
         user_id = update['object']['from_id']
-        with open("help.txt") as help_file:
-            msg = help_file.read()
-        # msg = "".join(msg) # % (HELP_WORD, DEBUG_WORD, CREATE_SCHOOL_WORD, ADD_WORD, WHOIN_WORD, GROUPSEND_WORD)
-        self.vkapi_handler.send_msg(user_id, msg)
+        self.vkapi_handler.send_msg(user_id, self.help_text)
         return
 
     def echo(self, update):
@@ -99,7 +149,7 @@ class ActionHandler:
     def invalid(self, update):
         # Wrong command
         user_id = update['object']['from_id']
-        msg = "Неправильная команда. Напишите !помощь, чтобы узнать больше."
+        msg = "Неправильная команда. Напишите !помощь для справки."
         self.vkapi_handler.send_msg(user_id, msg)
 
     def invite_user(self, update):
@@ -158,8 +208,8 @@ class ActionHandler:
         msg = update['object']['text']
         user_id = update['object']['from_id']
         args = Utility.parse_arg(msg)
-        vk_id = args[0]
-        group_id = args[1]
+        vk_id = args[1]
+        group_id = args[0]
 
         code = self.db_handler.add_to_group(group_id, vk_id, user_id)
         if code == -4:
@@ -180,8 +230,6 @@ class ActionHandler:
             notification = f"""🔔 Уведомление. 🔔\nВы были добавлены в группу {self.db_handler.fetch_group_name(group_id)} (group_id: {group_id}).
 (@id{user_id}(инициатор))"""
             self.vkapi_handler.send_msg(vk_id, notification)
-
-
 
     def update_role(self, update):
         # Changes role of the subject
@@ -219,7 +267,6 @@ class ActionHandler:
             notification = f"🔔 Уведомление. 🔔\n"
             notification += f"Произошла смена вашей роли в {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id}):{self.db_handler.fetch_role_name(last_role_id)} --> {self.db_handler.fetch_role_name(new_role_id)}\n(@id{user_id}(инициатор))."
             self.vkapi_handler.send_msg(vk_id, notification)
-
 
     def expel(self, update):
         # Removes user from school
@@ -260,8 +307,8 @@ class ActionHandler:
         user_id = update['object']['from_id']
         args = Utility.parse_arg(msg)
         school_id = args[0]
-        target_id = args[1]
-        group_id = args[2]
+        group_id = args[1]
+        target_id = args[2]
 
         # TODO: Write error codes later
         code = self.db_handler.remove_from_group(school_id, group_id, target_id, user_id)
