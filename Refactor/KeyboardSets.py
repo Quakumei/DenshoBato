@@ -44,5 +44,4 @@ def create_kb(one_time, buttons, inline=False):
 
 
 def get_register_buttons(name):
-    return create_kb(False, [[text_button(f"{COMMAND_SYMBOL}{REGISTER_WORD} {name}", "BLUE")],
-                             [text_button("- Потом", "WHITE")]], True)
+    return create_kb(False, [[text_button(f"{COMMAND_SYMBOL}{REGISTER_WORD} {name}", "BLUE")]], True)

@@ -55,7 +55,7 @@ class ActionHandler:
 
 ~~~~ Команды ~~~~
 · !{ct[CODE.HELP]} - вывести это сообщение.
-
+· - Меню - выйти в главное меню. 
 -- 🖊️ Регистрация и вы 
 
 · !{ct[CODE.REGISTER]} (username) - зарегистрироваться в системе с именем username. Если имя не указано, используется ваше имя в социальной сети. Этой же командой можно сменить себе имя.
@@ -106,7 +106,11 @@ Github: github.com/Quakumei Telegram: @yasumi404
         # Print help
         # msg = update['object']['text']
         user_id = update['object']['from_id']
-        self.vkapi_handler.send_msg(user_id, self.help_text)
+
+        buttons_res = [[KeyboardSets.text_button('- Меню', "WHITE")]]
+        kb = KeyboardSets.create_kb(True, buttons_res)
+
+        self.vkapi_handler.send_msg(user_id, self.help_text, json_kb=kb)
         return
 
     def echo(self, update):
@@ -154,10 +158,11 @@ Github: github.com/Quakumei Telegram: @yasumi404
             err = f"Что-то пошло не так при регистрации..."
             self.vkapi_handler.send_msg(user_id, err)
 
+
     def invalid(self, update):
         # Wrong command
         user_id = update['object']['from_id']
-        msg = "Неправильная команда. Напишите !помощь для справки."
+        msg = "Неправильная команда."
         self.vkapi_handler.send_msg(user_id, msg)
 
     def invite_user(self, update):
@@ -412,6 +417,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         else:
             err = f"Вы не можете писать пользователю {vk_id}... (Вы должны состоять в одной школе)"
             self.vkapi_handler.send_msg(user_id, err)
+            return
         if not list(set(vk_id_pm_avail) & set(user_id_pm_avail)):
             err = f"Вы не можете писать пользователю {vk_id}... (Вы должны состоять в одной школе)"
             self.vkapi_handler.send_msg(user_id, err)
@@ -540,6 +546,8 @@ Github: github.com/Quakumei Telegram: @yasumi404
 
         # schools_txt
         user_schools = self.db_handler.fetch_user_schools(user_id)
+        if user_schools is False:
+            user_schools = []
         schools_txt = []
         for school in user_schools:
             school_id, creator_id, school_name = school
@@ -562,7 +570,10 @@ Github: github.com/Quakumei Telegram: @yasumi404
         
         """
 
-        self.vkapi_handler.send_msg(user_id, txt)
+        buttons_res = [[KeyboardSets.text_button('- Меню', "WHITE")]]
+        kb = KeyboardSets.create_kb(True, buttons_res)
+
+        self.vkapi_handler.send_msg(user_id, txt, json_kb=kb)
         return
 
     def info_school(self, update):
@@ -663,7 +674,10 @@ Github: github.com/Quakumei Telegram: @yasumi404
         res += '\n' + "-" * 70 + '\n'
         res += f'Итого: {len(members)} участников.\n'
 
-        self.vkapi_handler.send_msg(user_id, res)
+        buttons_res = [[KeyboardSets.text_button('- Меню', "WHITE")]]
+        kb = KeyboardSets.create_kb(True, buttons_res)
+
+        self.vkapi_handler.send_msg(user_id, res, json_kb=kb)
 
     # def info_school_groups(self, update):
     #     # sends back message about all group_ids of school_id
@@ -718,10 +732,63 @@ Github: github.com/Quakumei Telegram: @yasumi404
         return
 
     def _continue(self, update):
-        # ???
-        msg = update['object']['text']
-        args = Utility.parse_arg(msg)
-        update['object']['text'] = args[1]
-        msg = update['object']['text']
+        # ??? Menu?
+
+        msg = update['object']['text'][2:]
         user_id = update['object']['from_id']
+        kb = ''
+        ans = '*'
+        buttons_res = []
+        one_words = [HELP_WORD,
+                     REGISTER_WORD,
+                     USER_INFO_WORD]
+        two_words = [INFO_GROUP_WORD]
+        three_words = [ADD_TO_GROUP_WORD,
+                       REMOVE_USER_FROM_GROUP_WORD,
+                       REMOVE_USER_WORD,
+                       INFO_STUDENT_WORD]
+        four_words = [UPDATE_ROLE_WORD]
+
+        semi_manual_words = [DELETE_GROUP_WORD,
+                             DELETE_SCHOOL_WORD,
+                             INVITE_USER_WORD,
+                             CREATE_GROUP_WORD,
+                             GROUP_MSG_WORD,
+                             PM_MSG_WORD]
+        manual_words = [CREATE_SCHOOL_WORD]
+        if msg in two_words:
+            if msg == INFO_GROUP_WORD:
+                self.user_info(update)
+                for group_id in self.db_handler.fetch_user_groups(user_id):
+                    buttons_res.append([KeyboardSets.text_button(f'{COMMAND_SYMBOL}{msg} {group_id[0]}', "GREEN")])
+                ans = msg + "..."
+
+        elif msg == "Потом" or msg == "Отмена" or msg == "Меню":
+            ans = "Для получения справки нажмите !помощь"
+            code_dict_reverse = {}
+            for k, v in CODE_DICT.items():
+                code_dict_reverse[v] = k
+
+            buttons = []
+            for i in CODE_DICT:
+                if i not in []:
+                    if i in one_words:  # Action ready
+                        buttons.append(KeyboardSets.text_button(f"{COMMAND_SYMBOL}{i}", color="BLUE"))
+                    else:
+                        buttons.append(KeyboardSets.text_button(f"{IGNORE_SYMBOL} {i}", color="WHITE"))
+
+            j = 0
+            while j + 3 < len(buttons):
+                buttons_res.append([buttons[j], buttons[j + 1], buttons[j + 2]])
+                j += 3
+            if j + 2 == len(buttons):
+                buttons_res.append([buttons[j], buttons[j + 1]])
+            elif j + 1 == len(buttons):
+                buttons_res.append([buttons[j]])
+
+        buttons_res.append([KeyboardSets.text_button('- Отмена', "WHITE")])
+        kb = KeyboardSets.create_kb(True, buttons_res)
+        # Somehow make buttons according on what is there already.
+        if kb:
+            self.vkapi_handler.send_msg(user_id, ans, json_kb=kb)
         return

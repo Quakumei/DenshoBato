@@ -71,7 +71,9 @@ class MsgHandler:
                     self.action_handler.handle_act(value, update)
                     return
         elif msg and msg[0] is CodeList.IGNORE_SYMBOL:
+            self.action_handler.handle_act(CodeList.CODE.CONTINUE, update)
             return
         # Not a command.
         else:
             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
+            self.action_handler.handle_act(CodeList.CODE.CONTINUE, update)
