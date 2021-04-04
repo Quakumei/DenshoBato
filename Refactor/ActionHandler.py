@@ -1,6 +1,7 @@
 # Handles any action committed by user
 from CodeList import *
 import Utility
+import KeyboardSets
 
 
 class ActionHandler:
@@ -14,6 +15,9 @@ class ActionHandler:
 
         self.act_table = {
             # Put new actions here (don't forget to add the command in config)
+            EVENT.REGISTER: self.register_prompt,
+
+            CODE.CONTINUE: self._continue,
             CODE.INFO_GROUP: self.info_group,
             CODE.INFO_STUDENT: self.info_student,
             # CODE.INFO_SCHOOL_GROUPS: self.info_school_groups,
@@ -54,7 +58,7 @@ class ActionHandler:
 
 -- 🖊️ Регистрация и вы 
 
-· !{ct[CODE.REGISTER]} [username] - зарегистрироваться в системе с именем username. Этой же командой можно сменить себе имя.
+· !{ct[CODE.REGISTER]} (username) - зарегистрироваться в системе с именем username. Если имя не указано, используется ваше имя в социальной сети. Этой же командой можно сменить себе имя.
 · !{ct[CODE.USER_INFO]} - вывести список групп и школ, в которых вы числитесь.
 
 
@@ -136,7 +140,11 @@ Github: github.com/Quakumei Telegram: @yasumi404
         msg = update['object']['text']
         user_id = update['object']['from_id']
 
-        nickname = " ".join(Utility.parse_arg(msg))
+        args = Utility.parse_arg(msg)
+        if args:
+            nickname = " ".join(args)
+        else:
+            nickname = self.vkapi_handler.get_name(user_id, short=True)
 
         resp = self.db_handler.user_nickname_update(user_id, nickname)
         if resp != -1:
@@ -396,8 +404,14 @@ Github: github.com/Quakumei Telegram: @yasumi404
 
         # Permission check
         # Users must be in the same clan.
-        vk_id_pm_avail = [x[0] for x in self.db_handler.fetch_user_schools(vk_id)]
-        user_id_pm_avail = [x[0] for x in self.db_handler.fetch_user_schools(user_id)]
+        a = self.db_handler.fetch_user_schools(vk_id)
+        b = self.db_handler.fetch_user_schools(user_id)
+        if a and b:
+            vk_id_pm_avail = [x[0] for x in self.db_handler.fetch_user_schools(vk_id)]
+            user_id_pm_avail = [x[0] for x in self.db_handler.fetch_user_schools(user_id)]
+        else:
+            err = f"Вы не можете писать пользователю {vk_id}... (Вы должны состоять в одной школе)"
+            self.vkapi_handler.send_msg(user_id, err)
         if not list(set(vk_id_pm_avail) & set(user_id_pm_avail)):
             err = f"Вы не можете писать пользователю {vk_id}... (Вы должны состоять в одной школе)"
             self.vkapi_handler.send_msg(user_id, err)
@@ -690,4 +704,24 @@ Github: github.com/Quakumei Telegram: @yasumi404
         if True in [x[2] for x in groups]:
             res += "\n🟢 - общие группы"
         self.vkapi_handler.send_msg(user_id, res)
+        return
+
+    def register_prompt(self, update):
+        # Сюда кидает когда нажимаешь кнопку начать.
+        # Регистрация.
+        user_id = update['object']['from_id']
+        msg = "Регистрация"
+        user_vk_name = self.vkapi_handler.get_name(user_id, short=True)
+        buttons = KeyboardSets.get_register_buttons(user_vk_name)
+        print(buttons)
+        self.vkapi_handler.send_msg(user_id, msg, json_kb=buttons)
+        return
+
+    def _continue(self, update):
+        # ???
+        msg = update['object']['text']
+        args = Utility.parse_arg(msg)
+        update['object']['text'] = args[1]
+        msg = update['object']['text']
+        user_id = update['object']['from_id']
         return

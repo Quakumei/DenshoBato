@@ -1,4 +1,5 @@
 class CODE:
+    CONTINUE = 20
     HELP = 0
     USER_INFO = 1
     ECHO = 2
@@ -26,7 +27,7 @@ class CODE:
 COMMAND_SYMBOL = "!"
 USER_INFO_WORD = "инфо"  # !инфо
 HELP_WORD = "помощь"  # !помощь
-REGISTER_WORD = "рег"  # !рег username
+REGISTER_WORD = "рег"  # !рег (username)
 CREATE_SCHOOL_WORD = "создать_шк"  # !создать_школу school_name
 INVITE_USER_WORD = "приг_шк"  # !приг_шк school_id vk_id
 UPDATE_ROLE_WORD = "изм_роль"  # !изм_роль school_id vk_id new_role_id
@@ -42,11 +43,14 @@ DELETE_GROUP_WORD = "удалить_группу"  # !удалить_групп�
 INFO_GROUP_WORD = "инфо_гр"  # !инфо_группа group_id (check rights)
 # INFO_SCHOOL_GROUPS_WORD = "инфо_шк_гр" #!инфо_шк_гр school_id
 INFO_STUDENT_WORD = "инфо_уч"  # !инфо_уч school_id student_id
+CONTINUE_WORD = "п"
+IGNORE_SYMBOL = "-"
 
 DB_NAME = 'bato.db'
 
 CODE_DICT = {
     # Add words here too
+    CONTINUE_WORD: CODE.CONTINUE,
     INFO_STUDENT_WORD: CODE.INFO_STUDENT,
     INFO_GROUP_WORD: CODE.INFO_GROUP,
     # INFO_SCHOOL_GROUPS_WORD: CODE.INFO_SCHOOL_GROUPS,
@@ -66,3 +70,7 @@ CODE_DICT = {
     USER_INFO_WORD: CODE.USER_INFO,
     CREATE_SCHOOL_WORD: CODE.CREATE_SCHOOL
 }
+
+
+class EVENT:
+    REGISTER = 101

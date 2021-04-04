@@ -1,6 +1,7 @@
 import vk
 from requests import *
 from random import randint
+import json
 
 
 class VkApiHandler:
@@ -30,13 +31,23 @@ class VkApiHandler:
     #     # Send text only
     #     self.api.messages.send(user_id=user_id, random_id=randint(-2147483648, 2147483647),
     #                            message=txt)
-    def send_msg(self, user_id, txt, attachment_str=None):
+    def send_msg(self, user_id, txt, attachment_str=None, json_kb=None):
         # Send text with attachments
         self.api.messages.send(user_id=user_id, random_id=randint(-2147483648, 2147483647),
-                               message=txt, attachment=attachment_str)
+                               message=txt, attachment=attachment_str, keyboard=json_kb)
+
+    def get_name(self, user_id, short=False):
+        # Return name of a person in VK
+        # Отчество НЕ используется так как во ВКонтакте большинство пользователей его не выставляют.
+        user = self.api.users.get(user_ids=f'id{user_id}')[0]
+        first_name = user["first_name"]
+        last_name = user["last_name"]
+        if short:
+            return f"{last_name} {first_name[0]}."  # Тампио И.
+        else:
+            return f"{last_name} {first_name}"  # Тампио Илья
 
     def setMsgHandler(self, msg_handler):
-
         self.msg_handler = msg_handler
 
     def main_loop(self):
