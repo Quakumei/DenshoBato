@@ -69,6 +69,11 @@ CODE_DICT = {
     USER_INFO_WORD: CODE.USER_INFO,
     CREATE_SCHOOL_WORD: CODE.CREATE_SCHOOL
 }
+#
+# buttons_res = [[KeyboardSets.text_button('- Меню', "WHITE")]]
+#         kb = KeyboardSets.create_kb(True, buttons_res)
+#
+#         self.vkapi_handler.send_msg(user_id, self.help_text, json_kb=kb)
 
 
 class EVENT:
