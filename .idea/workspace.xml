@@ -5,9 +5,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/ActionHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/ActionHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/CodeList.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/CodeList.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Refactor/KeyboardSets.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/KeyboardSets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/DatabaseHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/DatabaseHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/MsgHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/MsgHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Refactor/bato.db" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/bato.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/Utility.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/Utility.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Refactor/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +43,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="full.screen.before.presentation.mode" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Refactor" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">

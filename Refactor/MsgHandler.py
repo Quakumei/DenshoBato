@@ -7,12 +7,13 @@ import json
 
 
 class MsgHandler:
-    def __init__(self, code_dict, command_symbol, action_handler, debug=True):
+    def __init__(self, code_dict, command_symbol, ignore_symbol, action_handler, debug=True):
         self.debug = debug
 
         self.action_handler = action_handler
         self.code_dict = code_dict
         self.command_symbol = command_symbol
+        self.ignore_symbol = ignore_symbol
 
         if self.debug:
             print(self.code_dict)
@@ -22,15 +23,17 @@ class MsgHandler:
         if self.debug:
             print(update)
 
-
+        # Кнопка начать
         if "payload" in update['object'] and update['object']['payload'] == '{"command":"start"}':
             self.action_handler.handle_act(CodeList.EVENT.REGISTER, update)
             return
 
         msg = update['object']['text']
         user_id = update['object']['from_id']
+        if msg and msg[0] is self.ignore_symbol:
+            self.action_handler.handle_act(CodeList.CODE.CONTINUE, update)
 
-        if msg and msg[0] is self.command_symbol:
+        elif msg and msg[0] is self.command_symbol:
             code = msg.split(' ', 1)[0][1:].lower()
             # Handle command
             for (key, value) in self.code_dict.items():
@@ -70,10 +73,7 @@ class MsgHandler:
 
                     self.action_handler.handle_act(value, update)
                     return
-        elif msg and msg[0] is CodeList.IGNORE_SYMBOL:
-            self.action_handler.handle_act(CodeList.CODE.CONTINUE, update)
-            return
         # Not a command.
         else:
             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
-            self.action_handler.handle_act(CodeList.CODE.CONTINUE, update)
+            self.action_handler.handle_act(CodeList.CODE.RETURN, update)

@@ -151,7 +151,14 @@ class DatabaseHandler:
         cmd4 = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id} AND group_name LIKE '{group_name}'"
         self.cursor.execute(cmd4)
         res = self.cursor.fetchall()
+
         group_id = res[0][0]
+
+        # Add creator to group
+        cmd3 = f"INSERT INTO groups_membership (vk_id, id) VALUES ({user_id}, '{group_id}')"
+        self.cursor.execute(cmd3)
+        self.connection.commit()
+
         return group_id
 
     def add_to_group(self, group_id, vk_id, user_id):
@@ -189,7 +196,6 @@ class DatabaseHandler:
             cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
             self.cursor.execute(cmd3)
             self.connection.commit()
-
 
             return True
         except:
@@ -419,18 +425,26 @@ class DatabaseHandler:
         else:
             return False
 
-    def fetch_user_groups(self, user_id):
+    def fetch_user_groups(self, user_id, level=5):
         # Returns list of tuples *with 3 columns* of groups info.
         cmd = f"SELECT group_id FROM groups_membership WHERE vk_id LIKE {user_id}"
         self.cursor.execute(cmd)
         group_ids = [x[0] for x in self.cursor.fetchall()]
+
         groups = []
         for group_id in group_ids:
             cmd = f"SELECT * FROM groups WHERE group_id LIKE {group_id}"
             self.cursor.execute(cmd)
             groups.append(self.cursor.fetchall()[0])
-        if groups:
-            return groups
+
+        # Filter by role
+        groups_filtered = []
+        for group in groups:
+            if int(self.fetch_user_school_role(group[1], user_id)) <= level:
+                groups_filtered.append(group)
+
+        if groups_filtered:
+            return groups_filtered
         else:
             return False
 

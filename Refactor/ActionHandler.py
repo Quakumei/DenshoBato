@@ -17,6 +17,7 @@ class ActionHandler:
             # Put new actions here (don't forget to add the command in config)
             EVENT.REGISTER: self.register_prompt,
 
+            CODE.RETURN: self._return,
             CODE.CONTINUE: self._continue,
             CODE.INFO_GROUP: self.info_group,
             CODE.INFO_STUDENT: self.info_student,
@@ -154,10 +155,10 @@ Github: github.com/Quakumei Telegram: @yasumi404
         if resp != -1:
             txt = f"Вы успешно установили себе имя {nickname}."
             self.vkapi_handler.send_msg(user_id, txt)
+            self._return(update, "Меню")
         else:
             err = f"Что-то пошло не так при регистрации..."
             self.vkapi_handler.send_msg(user_id, err)
-
 
     def invalid(self, update):
         # Wrong command
@@ -734,61 +735,69 @@ Github: github.com/Quakumei Telegram: @yasumi404
     def _continue(self, update):
         # ??? Menu?
 
+        # Action types according to count of arguments
+        INSTANT = [USER_INFO_WORD, HELP_WORD, REGISTER_WORD]
+        ONE_ARG = [INFO_SCHOOL_WORD, INFO_GROUP_WORD]
+        TWO_ARG = [INVITE_USER_WORD, REMOVE_USER_WORD, INFO_STUDENT_WORD]
+        THR_ARG = [UPDATE_ROLE_WORD, REMOVE_USER_FROM_GROUP_WORD]
+        MANUAL = [CREATE_SCHOOL_WORD, DELETE_SCHOOL_WORD,
+                  CREATE_GROUP_WORD, DELETE_GROUP_WORD,
+                  GROUP_MSG_WORD, PM_MSG_WORD]
+
         msg = update['object']['text'][2:]
         user_id = update['object']['from_id']
         kb = ''
         ans = '*'
         buttons_res = []
-        one_words = [HELP_WORD,
-                     REGISTER_WORD,
-                     USER_INFO_WORD]
-        two_words = [INFO_GROUP_WORD]
-        three_words = [ADD_TO_GROUP_WORD,
-                       REMOVE_USER_FROM_GROUP_WORD,
-                       REMOVE_USER_WORD,
-                       INFO_STUDENT_WORD]
-        four_words = [UPDATE_ROLE_WORD]
 
-        semi_manual_words = [DELETE_GROUP_WORD,
-                             DELETE_SCHOOL_WORD,
-                             INVITE_USER_WORD,
-                             CREATE_GROUP_WORD,
-                             GROUP_MSG_WORD,
-                             PM_MSG_WORD]
-        manual_words = [CREATE_SCHOOL_WORD]
-        if msg in two_words:
-            if msg == INFO_GROUP_WORD:
-                self.user_info(update)
-                for group_id in self.db_handler.fetch_user_groups(user_id):
-                    buttons_res.append([KeyboardSets.text_button(f'{COMMAND_SYMBOL}{msg} {group_id[0]}', "GREEN")])
-                ans = msg + "..."
+        # Обработка сообщения
+        words = msg.split(' ')
+        args_count = len(words) - 1
 
-        elif msg == "Потом" or msg == "Отмена" or msg == "Меню":
-            ans = "Для получения справки нажмите !помощь"
-            code_dict_reverse = {}
-            for k, v in CODE_DICT.items():
-                code_dict_reverse[v] = k
+        if words[0] in ONE_ARG:
+            if args_count == 0:
+                # Display info and show buttons
+                if words[0] == INFO_GROUP_WORD:
+                    # Message
+                    buttons = []
+                    groups = self.db_handler.fetch_user_groups(user_id, 5)
+                    groups_txt = Utility.groups2txt(groups)
+                    txt = groups_txt + "\nПожалуйста, выберите группу."
 
+                    # Buttons
+                    for g in groups:
+                        buttons.append(
+                            KeyboardSets.text_button(f"{COMMAND_SYMBOL}{' '.join(words + [str(g[0])])}", "GREEN"))
+                    buttons = Utility.arrange_buttons(buttons, 2)
+
+                elif words[0] == INFO_SCHOOL_WORD:
+                    pass
+            elif args_count == 1:
+                # That won't happen.
+                return
+
+        if words[0] in ["Потом", "Отмена", "Меню"]:
+            # Вывести менюшку.
+            txt = "Для получения справки нажмите !помощь"
             buttons = []
             for i in CODE_DICT:
                 if i not in []:
-                    if i in one_words:  # Action ready
+                    if i in INSTANT:  # Action ready
                         buttons.append(KeyboardSets.text_button(f"{COMMAND_SYMBOL}{i}", color="BLUE"))
                     else:
                         buttons.append(KeyboardSets.text_button(f"{IGNORE_SYMBOL} {i}", color="WHITE"))
+            buttons = Utility.arrange_buttons(buttons, 3)
 
-            j = 0
-            while j + 3 < len(buttons):
-                buttons_res.append([buttons[j], buttons[j + 1], buttons[j + 2]])
-                j += 3
-            if j + 2 == len(buttons):
-                buttons_res.append([buttons[j], buttons[j + 1]])
-            elif j + 1 == len(buttons):
-                buttons_res.append([buttons[j]])
-
-        buttons_res.append([KeyboardSets.text_button('- Отмена', "WHITE")])
-        kb = KeyboardSets.create_kb(True, buttons_res)
-        # Somehow make buttons according on what is there already.
-        if kb:
-            self.vkapi_handler.send_msg(user_id, ans, json_kb=kb)
+        buttons.append([KeyboardSets.text_button('- Отмена', "WHITE")])
+        buttons = KeyboardSets.create_kb(True, buttons)
+        self.vkapi_handler.send_msg(user_id, txt, json_kb=buttons)
         return
+
+    def _return(self, update, word="Отмена"):
+        # Prints button to go home
+        msg = update['object']['text'][2:]
+        user_id = update['object']['from_id']
+        ans = '<...>'
+        buttons_res = [[KeyboardSets.text_button(f'- {word}', "WHITE")]]
+        kb = KeyboardSets.create_kb(True, buttons_res, False)
+        self.vkapi_handler.send_msg(user_id, ans, json_kb=kb)

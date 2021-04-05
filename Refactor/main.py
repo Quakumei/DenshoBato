@@ -18,6 +18,6 @@ db_handler = DatabaseHandler(DB_NAME)
 
 vkapi_handler = VkApiHandler(ACCESS_TOKEN, API_VERSION, GROUP_ID, debug=True)
 act_handler = ActionHandler(vkapi_handler, role_handler, db_handler, debug_mode=True)
-msg_handler = MsgHandler(CODE_DICT, COMMAND_SYMBOL, act_handler)
+msg_handler = MsgHandler(CODE_DICT, COMMAND_SYMBOL, IGNORE_SYMBOL, act_handler)
 vkapi_handler.setMsgHandler(msg_handler)
 vkapi_handler.main_loop()
