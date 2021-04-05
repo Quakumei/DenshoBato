@@ -291,26 +291,16 @@ Github: github.com/Quakumei Telegram: @yasumi404
         school_id = args[0]
         target_id = args[1]
 
-        code = self.db_handler.remove_user(school_id, target_id, user_id)
-        if code == -1:
-            err = f"Ошибка: Ошибка базы данных, сообщите разработчику..."
-            self.vkapi_handler.send_msg(user_id, err)
-            return
-        elif code == -4:
-            err = f"Ошибка: Недостаточно прав или вы не являетесь участником школы этой группы."
-            self.vkapi_handler.send_msg(user_id, err)
-            return
-        elif code == -2:
-            err = f"Ошибка: Ученик {target_id} не является участником {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id})..."
-            self.vkapi_handler.send_msg(user_id, err)
-            return
-        elif code == -5:
-            err = f"Ошибка: Нет школы c school_id: {school_id}..."
-            self.vkapi_handler.send_msg(user_id, err)
-            return
-        elif code is True:
+        code = self.db_handler.remove_user_from_school(school_id, target_id)
+        if code is True:
             txt = f"Вы успешно исключили '{target_id}' из школы '{school_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
+        else:
+            txt = f"Что-то пошло не так."
+            self.vkapi_handler.send_msg(user_id, txt)
+            self._return(update)
+            return
+
 
         # Sad letter
         notification = f"""🔔 Уведомление. 🔔

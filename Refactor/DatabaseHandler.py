@@ -496,14 +496,11 @@ class DatabaseHandler:
         # Remove user from school in roles_membership.
         # ! You must remove person from the school groups.
         # 1.) Fetch school groups
-        cmd = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id}"
-        self.cursor.execute(cmd)
-        groups_ids = [x[0] for x in self.cursor.fetchall()]
-        # 2.) Remove from school groups he is in
-        for group_id in groups_ids:
-            cmd = f"DELETE FROM groups_membership WHERE group_id LIKE {group_id} AND vk_id LIKE {target_id}"
-            self.cursor.execute(cmd)
-        # 3.) Remove him from school
+        school_groups_ids = [x[0] for x in self.fetch_school_groups(school_id)]
+        # 2.) Remove from school groups
+        for group_id in school_groups_ids:
+            self.remove_user_from_group(group_id, target_id)
+        # 3.) Remove  from school
         cmd = f"DELETE FROM roles_membership WHERE school_id LIKE {school_id} AND vk_id LIKE {target_id}"
         self.cursor.execute(cmd)
         self.connection.commit()
