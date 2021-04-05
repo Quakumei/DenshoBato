@@ -60,16 +60,6 @@ def parse_attachments2str(attachments):
         return "", ""
     return res[:-1], urls
 
-def groups_list_txt(group_ids, db_handler):
-    txt = f"""-+-+-+-+-+- 📚 Группы 📚 -+-+-+-+-+-\n\n"""
-    groups = [(x, db_handler.fetch_group_name(x)) for x in group_ids]
-    for group in groups:
-        group_id = group[0]
-        group_name = group[1]
-
-        txt += f"-- {group_name} (group_id: {group_id})\n"
-    txt += "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
-    return txt
 
 # Спасибо, из-за бага в вк API у меня нет возможности в payload кнопок запихивать кириллицу и я вынужден использовать эту коляску
 # Спонсор транслитерации этот источник. Этот источник - спасибо, что не оверфлоу https://habr.com/ru/post/265455/)
