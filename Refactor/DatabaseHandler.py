@@ -382,11 +382,11 @@ class DatabaseHandler:
 
     def fetch_school_groups(self, school_id):
         # Returns school groups ids of school_id school
-        cmd1 = f"SELECT group_id FROM groups WHERE school_id LIKE {school_id}"
+        cmd1 = f"SELECT * FROM groups WHERE school_id LIKE {school_id}"
         self.cursor.execute(cmd1)
         res = self.cursor.fetchall()
-        school_groups_ids = [x[0] for x in res]
-        return school_groups_ids
+        school_groups = res
+        return school_groups
 
     def fetch_role_name(self, role_id):
         # Returns role name
@@ -460,8 +460,9 @@ class DatabaseHandler:
         # Returns list of group members
         cmd = f"SELECT vk_id FROM groups_membership WHERE group_id LIKE {group_id}"
         self.cursor.execute(cmd)
-        vk_ids = self.cursor.fetchall()
-        return [x[0] for x in vk_ids]
+        members = [x[0] for x in self.cursor.fetchall()]
+        members = [(x, self.fetch_user_name(x)) for x in members]
+        return members  # [vk_id][nickname]
 
     def avail_group_msg_group_ids(self, user_id):
         # Title says it all (available)
@@ -478,7 +479,7 @@ class DatabaseHandler:
         # Fetch group_ids by school_ids
         result_ids = []
         for school_id in filtered_ids:
-            result_ids = result_ids + self.fetch_school_groups(school_id)
+            result_ids = result_ids + [x[0] for x in self.fetch_school_groups(school_id)]
 
         return result_ids
 
@@ -528,7 +529,7 @@ class DatabaseHandler:
         school_members_ids = self.fetch_school_members(school_id)
         for member_id in school_members_ids:
             self.remove_user_from_school(school_id, member_id)
-        school_groups_ids = self.fetch_school_groups(school_id)
+        school_groups_ids = [x[0] for x in self.fetch_school_groups(school_id)]
         for group_id in school_groups_ids:
             self.delete_group(group_id)
         cmd = f"DELETE FROM schools WHERE school_id LIKE {school_id}"

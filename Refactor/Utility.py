@@ -88,7 +88,7 @@ def arrange_buttons(buttons, columns_count):
 def groups2txt(groups):
     # Return groups list for message
     # groups: (id, school_id, name)
-    txt = """======== 📚 Ваши Группы 📚 ========\n\n"""
+    txt = """======== 📚 Группы 📚 ========\n\n"""
     for group_id, school_id, group_name in groups:
         txt += f"-- \"{group_name}\" (group_id: {group_id})\n"
     return txt
@@ -100,4 +100,13 @@ def schools2txt(schools):
     txt = """======== 🏫 Школы 🏫 ========\n\n"""
     for school_id, creator_id, school_name in schools:
         txt += f"-- \"{school_name}\" (school_id: {school_id})\n"
+    return txt
+
+
+def members2txt(members):
+    # Return group members in a message
+    # members: (vk_id, nickname)
+    txt = f"======== 👩‍🦱 Участники группы 🧓 ========\n\n"
+    for vk_id, nickname in members:
+        txt += f"-- \"{nickname}\" (@id{vk_id}(@id{vk_id}))\n"
     return txt

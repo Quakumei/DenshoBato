@@ -365,7 +365,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             return
 
         # Fetch ids
-        mailing_list_ids = self.db_handler.fetch_group_members(group_id)
+        mailing_list_ids = [x[0] for x in self.db_handler.fetch_group_members(group_id)]
 
         # Send msg
 
@@ -511,7 +511,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             self.vkapi_handler.send_msg(user_id, err)
             return
         # For sad
-        former_members_ids = self.db_handler.fetch_group_members(group_id)
+        former_members_ids = [x[0] for x in self.db_handler.fetch_group_members(group_id)]
 
         self.db_handler.delete_group(group_id)
         txt = f"Успех: группа `{group_name_true}` (id: {group_id}) была удалена."
@@ -585,7 +585,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
 
         # Fetch data
         school_name = self.db_handler.fetch_school_name(school_id)
-        school_groups_ids = self.db_handler.fetch_school_groups(school_id)
+        school_groups_ids = [x[0] for x in self.db_handler.fetch_school_groups(school_id)]
         school_groups_names = []
         for group_id in school_groups_ids:
             school_groups_names.append(self.db_handler.fetch_group_name(group_id))
@@ -655,7 +655,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         group_id = args[0]
         group_name = self.db_handler.fetch_group_name(group_id)
 
-        members_ids = self.db_handler.fetch_group_members(group_id)
+        members_ids = [x[0] for x in self.db_handler.fetch_group_members(group_id)]
         members = []
         school_id = self.db_handler.fetch_group_school(group_id)
         for member_id in members_ids:
@@ -690,8 +690,8 @@ Github: github.com/Quakumei Telegram: @yasumi404
 
     def info_student(self, update):
         # Returns info about a student as if he lived only in school_id.
-        # TODO: Permissions
-        # TODO: Feature: show similar groups.
+        # TODOne: Permissions -- negotiated with ui
+        # TODOne: Feature: show similar groups.
         msg = update['object']['text']
         user_id = update['object']['from_id']
         args = Utility.parse_arg(msg)
@@ -720,6 +720,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         if True in [x[2] for x in groups]:
             res += "\n🟢 - общие группы"
         self.vkapi_handler.send_msg(user_id, res)
+        self._return(update)
         return
 
     def register_prompt(self, update):
@@ -764,8 +765,49 @@ Github: github.com/Quakumei Telegram: @yasumi404
             buttons.append(
                 KeyboardSets.text_button(
                     f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(words + [str(g[0])])}", "GREEN"))
-        buttons = Utility.arrange_buttons(buttons, 2)
+        buttons = Utility.arrange_buttons(buttons, buttons_rows)
         return buttons, txt
+
+    def choose_group_list(self, groups, words, full=False, buttons_rows=2, secondary=True):
+        # message maker for _continue
+        # buttons, txt = choose_group(user_id, level)
+        # Message
+        buttons = []
+        # groups = self.db_handler.fetch_user_groups(user_id, level)
+        groups_txt = Utility.groups2txt(groups)
+        txt = groups_txt + "\nПожалуйста, выберите группу."
+
+        # Buttons
+        for g in groups:
+            buttons.append(
+                KeyboardSets.text_button(
+                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(words + ['гр' + str(g[0]) if secondary else str(g[0])])}",
+                    "GREEN"))
+        buttons = Utility.arrange_buttons(buttons, buttons_rows)
+        return buttons, txt
+
+    def choose_member(self, group_id, words, full=True, buttons_rows=2, from_secondary=True):
+        # message maker for _continue
+        # buttons, txt = choose_group(user_id, level)
+        # Message
+
+        # from_secondary -- done
+        # members2txt -- DOne
+
+        buttons = []
+        members = self.db_handler.fetch_group_members(group_id)
+        members_txt = Utility.members2txt(members)
+        txt = members_txt + "\nПожалуйста, выберите пользователя."
+
+        # Buttons
+        for memb in members:
+            buttons.append(
+                KeyboardSets.text_button(
+                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(([x for x in words if x[:2]!='гр'] if from_secondary else words)+[str(memb[0])])}",
+                    "GREEN"))
+        buttons = Utility.arrange_buttons(buttons, buttons_rows)
+        return buttons, txt
+
 
     def _continue(self, update):
         # ??? Menu?
@@ -808,23 +850,42 @@ Github: github.com/Quakumei Telegram: @yasumi404
                     txt = f"Пожалуйста, напишите команду самостоятельно.\nКоманда: '{COMMAND_SYMBOL}{' '.join(words)} <vk_id>'"
 
                 elif words[0] == REMOVE_USER_WORD:
-
+                    # List groups
+                    school_id = words[1]
+                    groups = self.db_handler.fetch_school_groups(school_id)
+                    buttons, txt = self.choose_group_list(groups, words, full=False, buttons_rows=2)
                     pass
                 elif words[0] == INFO_STUDENT_WORD:
+                    # List groups
+                    school_id = words[1]
+                    groups = self.db_handler.fetch_school_groups(school_id)
+                    buttons, txt = self.choose_group_list(groups, words, full=False, buttons_rows=2)
                     pass
                 elif words[0] == ADD_TO_GROUP_WORD:
                     txt = f"Пожалуйста, напишите команду самостоятельно.\nКоманда: '{COMMAND_SYMBOL}{' '.join(words)} <vk_id>'"
 
             elif args_count == 2:
-                # Only cases when group are needed to be shown.
+                # Only triggers when group are needed to be shown.
                 if words[0] == INVITE_USER_WORD:
                     pass
                 elif words[0] == REMOVE_USER_WORD:
+                    # Show chosen group and choose_member
+                    # гр123
+                    group_id = words[2][2:]
+                    buttons, txt = self.choose_member(group_id, words, full=True)
                     pass
                 elif words[0] == INFO_STUDENT_WORD:
+                    # Show chosen group and choose_member
+                    # гр123
+                    group_id = words[2][2:]
+                    buttons, txt = self.choose_member(group_id, words, full=True)
                     pass
                 elif words[0] == ADD_TO_GROUP_WORD:
                     pass
+                pass
+
+            elif args_count == 3:
+                # Never
                 pass
 
         elif words[0] in ONE_ARG:
@@ -865,3 +926,5 @@ Github: github.com/Quakumei Telegram: @yasumi404
         buttons_res = [[KeyboardSets.text_button(f'- {word}', "WHITE")]]
         kb = KeyboardSets.create_kb(True, buttons_res, False)
         self.vkapi_handler.send_msg(user_id, ans, json_kb=kb)
+
+
