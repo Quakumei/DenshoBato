@@ -408,7 +408,8 @@ class DatabaseHandler:
         else:
             return False
 
-    def fetch_user_schools(self, user_id):
+    def fetch_user_schools(self, user_id, level=5):
+        # Good method.
         # Returns array of school_ids person is in.
         cmd = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id}"
         self.cursor.execute(cmd)
@@ -420,8 +421,15 @@ class DatabaseHandler:
             res = self.cursor.fetchall()
             schools.append(res[0])
         # RETURN: [(SCHOOL_ID, CREATOR_ID, SCHOOL_NAME,)]
-        if schools:
-            return schools
+
+        schools_filtered = []
+        for school in schools:
+            role_id = self.fetch_user_school_role(school[0], user_id)
+            if role_id <= level:
+                schools_filtered.append(school)
+
+        if schools_filtered:
+            return schools_filtered
         else:
             return False
 

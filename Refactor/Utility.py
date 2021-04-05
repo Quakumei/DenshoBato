@@ -92,3 +92,12 @@ def groups2txt(groups):
     for group_id, school_id, group_name in groups:
         txt += f"-- \"{group_name}\" (group_id: {group_id})\n"
     return txt
+
+
+def schools2txt(schools):
+    # Return schools list for message
+    # schools: (school_id, creator_id, school_name)
+    txt = """======== 🏫 Школы 🏫 ========\n\n"""
+    for school_id, creator_id, school_name in schools:
+        txt += f"-- \"{school_name}\" (school_id: {school_id})\n"
+    return txt

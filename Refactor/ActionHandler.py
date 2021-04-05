@@ -638,6 +638,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         res += f'Итого: {len(members)} участников.\n'
 
         self.vkapi_handler.send_msg(user_id, res)
+        self._return(update, "Меню")
         return
 
         # Now we have school_groups (group_id , group_name)
@@ -771,7 +772,17 @@ Github: github.com/Quakumei Telegram: @yasumi404
                     buttons = Utility.arrange_buttons(buttons, 2)
 
                 elif words[0] == INFO_SCHOOL_WORD:
-                    pass
+                    # Message
+                    buttons = []
+                    schools = self.db_handler.fetch_user_schools(user_id, 5)
+                    schools_txt = Utility.schools2txt(schools)
+                    txt = schools_txt + "\nПожалуйста, выберите школу."
+
+                    # Buttons
+                    for sch in schools:
+                        buttons.append(KeyboardSets.text_button(f"{COMMAND_SYMBOL}{' '.join(words + [str(sch[0])])}", "GREEN"))
+                    buttons = Utility.arrange_buttons(buttons, 2)
+
             elif args_count == 1:
                 # That won't happen.
                 return
