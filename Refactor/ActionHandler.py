@@ -790,7 +790,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
                     self.info_school(update, arg, short=True)
                     self.vkapi_handler.send_msg(user_id,
                                                f"Пожалуйста, напишите команду. На место <student_id> впишите идентификатор ученика. \nКоманда: !{cmd} {arg} <user_id>")
-                    
+
             if msg != ADD_TO_GROUP_WORD and len (msg.split(' '))==1:
                 self.user_info(update)
                 for school in self.db_handler.fetch_user_schools(user_id):
