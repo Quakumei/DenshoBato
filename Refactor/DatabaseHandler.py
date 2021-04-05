@@ -544,3 +544,21 @@ class DatabaseHandler:
             return res[0][0]
         else:
             return False
+
+    def fetch_roles(self, level=5):
+        # Returns list with roles entries
+        cmd = f"SELECT * FROM roles"
+        self.cursor.execute(cmd)
+        roles = self.cursor.fetchall()
+
+        # Filter
+        roles_filtered = []
+        for role in roles:
+            # role_id permissions role_name
+            role_id, permissions, role_name = role
+            if int(role_id) > int(level):
+                roles_filtered.append(role)
+        if roles_filtered:
+            return roles_filtered
+        else:
+            return []

@@ -163,7 +163,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
     def invalid(self, update):
         # Wrong command
         user_id = update['object']['from_id']
-        msg = "Неправильная команда."
+        msg = "🚫 Неправильная команда. "
         self.vkapi_handler.send_msg(user_id, msg)
 
     def invite_user(self, update):
@@ -188,7 +188,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             err = f"Ошибка: Недостаточно прав или вы не являетесь участником {school_id}."
             self.vkapi_handler.send_msg(user_id, err)
         else:
-            txt = f"Вы успешно пригласили пользователя {vk_id} в {school_id}."
+            txt = f"✅ Вы успешно пригласили пользователя {vk_id} в {school_id}."
             self.vkapi_handler.send_msg(user_id, txt)
             notification = f"🔔 Уведомление. 🔔\n"
             notification += f"Вы были приняты в качестве {self.db_handler.fetch_role_name(5)} в школу {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id})" \
@@ -215,7 +215,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             err = f"Ошибка: Группа с таким именем в школе {school_id} уже сущестует..."
             self.vkapi_handler.send_msg(user_id, err)
         else:
-            txt = f"Вы успешно создали группу с названием {group_name} в {school_id}. Идентификатор новой группы - {code}."
+            txt = f"✅ Вы успешно создали группу с названием {group_name} в {school_id}. Идентификатор новой группы - {code}."
             self.vkapi_handler.send_msg(user_id, txt)
 
     def add_to_group(self, update):
@@ -240,7 +240,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             err = f"Ошибка: Пользователь {vk_id} не зарегистрирован в системе..."
             self.vkapi_handler.send_msg(user_id, err)
         else:
-            txt = f"Вы успешно добавили {vk_id} в группу {group_id}."
+            txt = f"✅ Вы успешно добавили {vk_id} в группу {group_id}."
             self.vkapi_handler.send_msg(user_id, txt)
             notification = f"""🔔 Уведомление. 🔔\nВы были добавлены в группу {self.db_handler.fetch_group_name(group_id)} (group_id: {group_id}).
 (@id{user_id}(инициатор))"""
@@ -277,7 +277,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             err = f"Ошибка: Нет школы {school_id}..."
             self.vkapi_handler.send_msg(user_id, err)
         if code is True:
-            txt = f"Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'."
+            txt = f"✅ Вы успешно сменили роль '{vk_id}' в школе '{school_id}' на '{new_role_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
             notification = f"🔔 Уведомление. 🔔\n"
             notification += f"Произошла смена вашей роли в {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id}):{self.db_handler.fetch_role_name(last_role_id)} --> {self.db_handler.fetch_role_name(new_role_id)}\n(@id{user_id}(инициатор))."
@@ -293,14 +293,13 @@ Github: github.com/Quakumei Telegram: @yasumi404
 
         code = self.db_handler.remove_user_from_school(school_id, target_id)
         if code is True:
-            txt = f"Вы успешно исключили '{target_id}' из школы '{school_id}'."
+            txt = f"✅ Вы успешно исключили '{target_id}' из школы '{school_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
         else:
             txt = f"Что-то пошло не так."
             self.vkapi_handler.send_msg(user_id, txt)
             self._return(update)
             return
-
 
         # Sad letter
         notification = f"""🔔 Уведомление. 🔔
@@ -320,7 +319,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         code = self.db_handler.remove_from_group(school_id, group_id, target_id, user_id)
 
         if code is True:
-            txt = f"Вы успешно исключили '{target_id}' из группы '{group_id}' школы '{school_id}'."
+            txt = f"✅ Вы успешно исключили '{target_id}' из группы '{group_id}' школы '{school_id}'."
             self.vkapi_handler.send_msg(user_id, txt)
         else:
             err = f"Что-то пошло не так [Код ошибки: {code}]..."
@@ -379,7 +378,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         for id in mailing_list_ids:
             self.vkapi_handler.send_msg(id, msg, attachment_str)
 
-        txt = f"Рассылка успешно выполнена."
+        txt = f"✅ Рассылка успешно отправлена."
         self.vkapi_handler.send_msg(user_id, txt)
         return
 
@@ -439,7 +438,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         for id in mailing_list_ids:
             self.vkapi_handler.send_msg(id, msg, attachment_str)
 
-        txt = f"Сообщение успешно отправлено."
+        txt = f"✅ Сообщение успешно отправлено."
         self.vkapi_handler.send_msg(user_id, txt)
         return
 
@@ -469,7 +468,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         former_members_ids = self.db_handler.fetch_school_members(school_id)
 
         self.db_handler.delete_school(school_id)
-        txt = f"Успех: школа `{school_name_true}` (id: {school_id}) была удалена."
+        txt = f"✅ Успех: школа `{school_name_true}` (id: {school_id}) была удалена."
 
         # Send poor message to everyone.
         for member_id in former_members_ids:
@@ -506,7 +505,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         former_members_ids = [x[0] for x in self.db_handler.fetch_group_members(group_id)]
 
         self.db_handler.delete_group(group_id)
-        txt = f"Успех: группа `{group_name_true}` (id: {group_id}) была удалена."
+        txt = f"✅ Успех: группа `{group_name_true}` (id: {group_id}) была удалена."
 
         # Send poor message to everyone.
         for member_id in former_members_ids:
@@ -795,11 +794,28 @@ Github: github.com/Quakumei Telegram: @yasumi404
         for memb in members:
             buttons.append(
                 KeyboardSets.text_button(
-                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(([x for x in words if x[:2]!='гр'] if from_secondary else words)+[str(memb[0])])}",
+                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(([x for x in words if x[:2] != 'гр'] if from_secondary else words) + [str(memb[0])])}",
                     "GREEN"))
         buttons = Utility.arrange_buttons(buttons, buttons_rows)
         return buttons, txt
 
+    def choose_role(self, level, words, full=True, buttons_rows=2):
+        # message maker for _continue
+        # buttons, txt = choose_role(user_id, level)
+        #    Message
+        buttons = []
+        roles = self.db_handler.fetch_roles(level=level)
+        roles_txt = Utility.roles2txt(roles)
+        txt = roles_txt + "\nПожалуйста, выберите новую роль."
+
+        # Buttons
+        for r in roles:
+            buttons.append(
+                KeyboardSets.text_button(
+                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(words + [str(r[0])])}", "BLUE"))
+        buttons = Utility.arrange_buttons(buttons, buttons_rows)
+
+        return buttons, txt
 
     def _continue(self, update):
         # ??? Menu?
@@ -823,7 +839,37 @@ Github: github.com/Quakumei Telegram: @yasumi404
         words = msg.split(' ')
         args_count = len(words) - 1
 
-        if words[0] in TWO_ARG:
+        if words[0] in THR_ARG:
+            if args_count == 0:
+                if words[0] == UPDATE_ROLE_WORD:
+                    buttons, txt = self.choose_school(user_id, 3, words)
+                elif words[0] == REMOVE_USER_FROM_GROUP_WORD:
+                    buttons, txt = self.choose_school(user_id, 3, words)
+            elif args_count == 1:
+                if words[0] == UPDATE_ROLE_WORD:
+                    # Choose group
+                    school_id = words[1]
+                    groups = self.db_handler.fetch_school_groups(school_id)
+                    buttons, txt = self.choose_group_list(groups, words, full=False, buttons_rows=2)
+                elif words[0] == REMOVE_USER_FROM_GROUP_WORD:
+                    pass
+            elif args_count == 2:
+                if words[0] == UPDATE_ROLE_WORD:
+                    if words[2][:2] == 'гр':
+                        # Show group ask whom to change
+                        # TODO: role level check (overall)
+                        group_id = words[2][2:]
+                        buttons, txt = self.choose_member(group_id, words, full=False)
+                    else:
+                        # Pick role (lower than yours)
+                        target_id = words[2]
+                        school_id = words[1]
+                        buttons, txt = self.choose_role(self.db_handler.fetch_user_school_role(school_id, user_id), words, full=True,
+                                                        buttons_rows=1)
+                elif words[0] == REMOVE_USER_FROM_GROUP_WORD:
+                    pass
+
+        elif words[0] in TWO_ARG:
             if args_count == 0:
                 if words[0] == INVITE_USER_WORD:
                     buttons, txt = self.choose_school(user_id, 4, words)
@@ -918,5 +964,3 @@ Github: github.com/Quakumei Telegram: @yasumi404
         buttons_res = [[KeyboardSets.text_button(f'- {word}', "WHITE")]]
         kb = KeyboardSets.create_kb(True, buttons_res, False)
         self.vkapi_handler.send_msg(user_id, ans, json_kb=kb)
-
-

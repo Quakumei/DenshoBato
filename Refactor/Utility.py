@@ -110,3 +110,12 @@ def members2txt(members):
     for vk_id, nickname in members:
         txt += f"-- \"{nickname}\" (@id{vk_id}(@id{vk_id}))\n"
     return txt
+
+
+def roles2txt(roles):
+    # Return roles in a message
+    # roles: (role_id, permissions, role_name)
+    txt = f"======== 🆓 Доступные роли 🆓 ========\n\n"
+    for role_id, permissions, role_name in roles:
+        txt += f"-- \"{role_name}\" (role_id: {role_id})\n"
+    return txt
