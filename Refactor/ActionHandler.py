@@ -852,7 +852,9 @@ Github: github.com/Quakumei Telegram: @yasumi404
                     groups = self.db_handler.fetch_school_groups(school_id)
                     buttons, txt = self.choose_group_list(groups, words, full=False, buttons_rows=2)
                 elif words[0] == REMOVE_USER_FROM_GROUP_WORD:
-                    pass
+                    school_id = words[1]
+                    groups = self.db_handler.fetch_school_groups(school_id)
+                    buttons, txt = self.choose_group_list(groups, words, full=False, buttons_rows=2, secondary=False)
             elif args_count == 2:
                 if words[0] == UPDATE_ROLE_WORD:
                     if words[2][:2] == 'гр':
@@ -864,10 +866,15 @@ Github: github.com/Quakumei Telegram: @yasumi404
                         # Pick role (lower than yours)
                         target_id = words[2]
                         school_id = words[1]
-                        buttons, txt = self.choose_role(self.db_handler.fetch_user_school_role(school_id, user_id), words, full=True,
+                        buttons, txt = self.choose_role(self.db_handler.fetch_user_school_role(school_id, user_id),
+                                                        words, full=True,
                                                         buttons_rows=1)
                 elif words[0] == REMOVE_USER_FROM_GROUP_WORD:
-                    pass
+                    if words[2]:
+                        # Show group ask whom to expel
+                        group_id = words[2]
+                        buttons, txt = self.choose_member(group_id, words, full=True)
+
 
         elif words[0] in TWO_ARG:
             if args_count == 0:
