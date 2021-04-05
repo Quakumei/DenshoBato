@@ -90,8 +90,8 @@ class ActionHandler:
 
 -- ✉ Отправка и рассылка сообщений
 
-· !{ct[CODE.PM_MSG]} [vk_id] - отправить сообщение пользователю.
-· !{ct[CODE.GROUP_MSG]} [group_id] - отправить сообщение группе (Преподаватель). 
+· !{ct[CODE.PM_MSG]} [vk_id] (ваше сообщение) - отправить сообщение пользователю. (отправляется ваше сообщение без команды)
+· !{ct[CODE.GROUP_MSG]} [group_id] (ваше сообщение) - отправить сообщение группе (Преподаватель). (отправляется ваше сообщение без команды)
 
 ~~~~~~~~~~~~~~~~
 
@@ -839,7 +839,12 @@ Github: github.com/Quakumei Telegram: @yasumi404
         words = msg.split(' ')
         args_count = len(words) - 1
 
-        if words[0] in THR_ARG:
+        if words[0] in MANUAL:
+            self.vkapi_handler.send_msg(user_id, f"Данная команда прописывается вручную. Подробнее в !помощь")
+            self._return(update, "Меню")
+            return
+
+        elif words[0] in THR_ARG:
             if args_count == 0:
                 if words[0] == UPDATE_ROLE_WORD:
                     buttons, txt = self.choose_school(user_id, 3, words)
