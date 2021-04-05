@@ -194,6 +194,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
             notification += f"Вы были приняты в качестве {self.db_handler.fetch_role_name(5)} в школу {self.db_handler.fetch_school_name(school_id)} (school_id: {school_id})" \
                             f"\n(@id{user_id}(инициатор))."
             self.vkapi_handler.send_msg(vk_id, notification)
+            self._return(update, "Меню")
 
     def create_group(self, update):
         # Create group with school_name in school_id. Return user its id.
@@ -315,6 +316,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         notification = f"""🔔 Уведомление. 🔔
 Вы были исключены из школы '{self.db_handler.fetch_school_name(school_id)}' (school_id: {school_id}) \n(@id{user_id}(инициатор))."""
         self.vkapi_handler.send_msg(target_id, notification)
+        self._return(update, "Меню")
 
     def expel_from_group(self, update):
         msg = update['object']['text']
@@ -720,7 +722,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
         if True in [x[2] for x in groups]:
             res += "\n🟢 - общие группы"
         self.vkapi_handler.send_msg(user_id, res)
-        self._return(update)
+        self._return(update, "Меню")
         return
 
     def register_prompt(self, update):
