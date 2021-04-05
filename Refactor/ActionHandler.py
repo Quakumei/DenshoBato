@@ -733,6 +733,38 @@ Github: github.com/Quakumei Telegram: @yasumi404
         self.vkapi_handler.send_msg(user_id, msg, json_kb=buttons)
         return
 
+    def choose_school(self, user_id, level, words, full=False, buttons_rows=2):
+        # message maker for _continue
+        # buttons, txt = choose_school(user_id, level)
+        # Message
+        buttons = []
+        schools = self.db_handler.fetch_user_schools(user_id, 4)
+        schools_txt = Utility.schools2txt(schools)
+        txt = schools_txt + "\nПожалуйста, выберите школу."
+
+        # Buttons
+        for sch in schools:
+            buttons.append(
+                KeyboardSets.text_button(f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL+' ')}{' '.join(words + [str(sch[0])])}", "GREEN"))
+        buttons = Utility.arrange_buttons(buttons, buttons_rows)
+        return buttons, txt
+
+    def choose_group(self, user_id, level, words, full=False, buttons_rows=2):
+        # message maker for _continue
+        # buttons, txt = choose_group(user_id, level)
+        # Message
+        buttons = []
+        groups = self.db_handler.fetch_user_groups(user_id, 5)
+        groups_txt = Utility.groups2txt(groups)
+        txt = groups_txt + "\nПожалуйста, выберите группу."
+
+        # Buttons
+        for g in groups:
+            buttons.append(
+                KeyboardSets.text_button(f"{COMMAND_SYMBOL}{' '.join(words + [str(g[0])])}", "GREEN"))
+        buttons = Utility.arrange_buttons(buttons, 2)
+        return buttons, txt
+
     def _continue(self, update):
         # ??? Menu?
 
@@ -747,47 +779,56 @@ Github: github.com/Quakumei Telegram: @yasumi404
 
         msg = update['object']['text'][2:]
         user_id = update['object']['from_id']
-        kb = ''
-        ans = '*'
-        buttons_res = []
+        buttons = []
+        txt = '<._._.>'
 
         # Обработка сообщения
         words = msg.split(' ')
         args_count = len(words) - 1
 
-        if words[0] in ONE_ARG:
+        if words[0] in TWO_ARG:
+            if args_count == 0:
+                if words[0] == INVITE_USER_WORD:
+                    buttons, txt = self.choose_school(user_id, 4, words)
+
+                elif words[0] == REMOVE_USER_WORD:
+                    buttons, txt = self.choose_school(user_id, 3, words)
+
+                elif words[0] == INFO_STUDENT_WORD:
+                    buttons, txt = self.choose_school(user_id, 5, words)
+
+            elif args_count == 1:
+                if words[0] == INVITE_USER_WORD:
+                    pass
+                elif words[0] == REMOVE_USER_WORD:
+                    pass
+                elif words[0] == INFO_STUDENT_WORD:
+                    pass
+                pass
+            elif args_count == 2:
+                if words[0] == INVITE_USER_WORD:
+                    pass
+                elif words[0] == REMOVE_USER_WORD:
+                    pass
+                elif words[0] == INFO_STUDENT_WORD:
+                    pass
+                # Only cases when group is needed to be shown.
+                pass
+
+        elif words[0] in ONE_ARG:
             if args_count == 0:
                 # Display info and show buttons
                 if words[0] == INFO_GROUP_WORD:
-                    # Message
-                    buttons = []
-                    groups = self.db_handler.fetch_user_groups(user_id, 5)
-                    groups_txt = Utility.groups2txt(groups)
-                    txt = groups_txt + "\nПожалуйста, выберите группу."
-
-                    # Buttons
-                    for g in groups:
-                        buttons.append(
-                            KeyboardSets.text_button(f"{COMMAND_SYMBOL}{' '.join(words + [str(g[0])])}", "GREEN"))
-                    buttons = Utility.arrange_buttons(buttons, 2)
+                    buttons, txt = self.choose_group(user_id, 5, words, full=True)
 
                 elif words[0] == INFO_SCHOOL_WORD:
-                    # Message
-                    buttons = []
-                    schools = self.db_handler.fetch_user_schools(user_id, 5)
-                    schools_txt = Utility.schools2txt(schools)
-                    txt = schools_txt + "\nПожалуйста, выберите школу."
-
-                    # Buttons
-                    for sch in schools:
-                        buttons.append(KeyboardSets.text_button(f"{COMMAND_SYMBOL}{' '.join(words + [str(sch[0])])}", "GREEN"))
-                    buttons = Utility.arrange_buttons(buttons, 2)
+                    buttons, txt = self.choose_school(user_id, 5, words, full=True)
 
             elif args_count == 1:
                 # That won't happen.
                 return
 
-        if words[0] in ["Потом", "Отмена", "Меню"]:
+        elif words[0] in ["Потом", "Отмена", "Меню"]:
             # Вывести менюшку.
             txt = "Для получения справки нажмите !помощь"
             buttons = []
