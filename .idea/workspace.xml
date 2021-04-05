@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="48a1894c-c775-414e-9282-a74a265bdc88" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Refactor/ActionHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Refactor/ActionHandler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

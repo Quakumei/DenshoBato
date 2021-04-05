@@ -745,7 +745,8 @@ Github: github.com/Quakumei Telegram: @yasumi404
         # Buttons
         for sch in schools:
             buttons.append(
-                KeyboardSets.text_button(f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL+' ')}{' '.join(words + [str(sch[0])])}", "GREEN"))
+                KeyboardSets.text_button(
+                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(words + [str(sch[0])])}", "GREEN"))
         buttons = Utility.arrange_buttons(buttons, buttons_rows)
         return buttons, txt
 
@@ -754,14 +755,15 @@ Github: github.com/Quakumei Telegram: @yasumi404
         # buttons, txt = choose_group(user_id, level)
         # Message
         buttons = []
-        groups = self.db_handler.fetch_user_groups(user_id, 5)
+        groups = self.db_handler.fetch_user_groups(user_id, level)
         groups_txt = Utility.groups2txt(groups)
         txt = groups_txt + "\nПожалуйста, выберите группу."
 
         # Buttons
         for g in groups:
             buttons.append(
-                KeyboardSets.text_button(f"{COMMAND_SYMBOL}{' '.join(words + [str(g[0])])}", "GREEN"))
+                KeyboardSets.text_button(
+                    f"{COMMAND_SYMBOL if full else (IGNORE_SYMBOL + ' ')}{' '.join(words + [str(g[0])])}", "GREEN"))
         buttons = Utility.arrange_buttons(buttons, 2)
         return buttons, txt
 
@@ -771,7 +773,8 @@ Github: github.com/Quakumei Telegram: @yasumi404
         # Action types according to count of arguments
         INSTANT = [USER_INFO_WORD, HELP_WORD, REGISTER_WORD]
         ONE_ARG = [INFO_SCHOOL_WORD, INFO_GROUP_WORD]
-        TWO_ARG = [INVITE_USER_WORD, REMOVE_USER_WORD, INFO_STUDENT_WORD]
+        TWO_ARG = [INVITE_USER_WORD, REMOVE_USER_WORD,
+                   INFO_STUDENT_WORD, ADD_TO_GROUP_WORD]
         THR_ARG = [UPDATE_ROLE_WORD, REMOVE_USER_FROM_GROUP_WORD]
         MANUAL = [CREATE_SCHOOL_WORD, DELETE_SCHOOL_WORD,
                   CREATE_GROUP_WORD, DELETE_GROUP_WORD,
@@ -797,22 +800,31 @@ Github: github.com/Quakumei Telegram: @yasumi404
                 elif words[0] == INFO_STUDENT_WORD:
                     buttons, txt = self.choose_school(user_id, 5, words)
 
+                elif words[0] == ADD_TO_GROUP_WORD:
+                    buttons, txt = self.choose_group(user_id, 3, words)
+
             elif args_count == 1:
                 if words[0] == INVITE_USER_WORD:
-                    pass
+                    txt = f"Пожалуйста, напишите команду самостоятельно.\nКоманда: '{COMMAND_SYMBOL}{' '.join(words)} <vk_id>'"
+
                 elif words[0] == REMOVE_USER_WORD:
+
                     pass
                 elif words[0] == INFO_STUDENT_WORD:
                     pass
-                pass
+                elif words[0] == ADD_TO_GROUP_WORD:
+                    txt = f"Пожалуйста, напишите команду самостоятельно.\nКоманда: '{COMMAND_SYMBOL}{' '.join(words)} <vk_id>'"
+
             elif args_count == 2:
+                # Only cases when group are needed to be shown.
                 if words[0] == INVITE_USER_WORD:
                     pass
                 elif words[0] == REMOVE_USER_WORD:
                     pass
                 elif words[0] == INFO_STUDENT_WORD:
                     pass
-                # Only cases when group is needed to be shown.
+                elif words[0] == ADD_TO_GROUP_WORD:
+                    pass
                 pass
 
         elif words[0] in ONE_ARG:
