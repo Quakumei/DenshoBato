@@ -5,10 +5,9 @@ import KeyboardSets
 
 
 class ActionHandler:
-    def __init__(self, vkapi_handler, role_handler, db_handler, debug_mode=True):
+    def __init__(self, vkapi_handler, db_handler, debug_mode=True):
         self.debug_mode = debug_mode
         self.vkapi_handler = vkapi_handler
-        self.role_handler = role_handler
         self.db_handler = db_handler
         self.help_text = self._load_help()
         self.test = 0
@@ -944,7 +943,7 @@ Github: github.com/Quakumei Telegram: @yasumi404
                     else:
                         buttons.append(KeyboardSets.text_button(f"{IGNORE_SYMBOL} {i}", color="WHITE"))
             buttons = Utility.arrange_buttons(buttons, 3)
-
+        
         buttons.append([KeyboardSets.text_button('- Отмена', "WHITE")])
         buttons = KeyboardSets.create_kb(True, buttons)
         self.vkapi_handler.send_msg(user_id, txt, json_kb=buttons)
