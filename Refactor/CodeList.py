@@ -77,6 +77,5 @@ CODE_DICT = {
 
 }
 
-
 class EVENT:
     REGISTER = 101

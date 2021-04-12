@@ -76,4 +76,3 @@ class MsgHandler:
         # Not a command.
         else:
             self.action_handler.handle_act(CodeList.CODE.INVALID, update)
-            self.action_handler.handle_act(CodeList.CODE.RETURN, update)

@@ -51,12 +51,16 @@ class DatabaseHandler:
             print(results)
 
     def create_school(self, school_name, creator_vk_id):
-        # Creates school, assigns creator and returns its id.
+        # Creates school, assigns creator and returns new school's id.
         print(f"Adding school {school_name} for {creator_vk_id}...")
 
         # Add school to schools table
         cmd1 = f"INSERT INTO schools (creator_vk_id, school_name) VALUES ({creator_vk_id},\"{school_name}\")"
-        self.cursor.execute(cmd1)
+        try:
+            self.cursor.execute(cmd1)
+        except sqlite3.IntegrityError:
+            self.connection.rollback()
+            raise Exception("Вы не зарегистрированы в системе. Напишите !помощь, чтобы узнать больше.")
 
         # Fetch new school's id
         cmd2 = f"SELECT school_id FROM schools WHERE school_name LIKE \"{school_name}\" AND creator_vk_id LIKE {creator_vk_id}"
@@ -68,12 +72,6 @@ class DatabaseHandler:
 
         # Give the creator the role of creator of the school
         cmd3 = f"INSERT INTO roles_membership (vk_id, role_id, school_id) VALUES ({creator_vk_id}, {1}, {school_id})"
-        try:
-            self.cursor.execute(cmd3)
-        except sqlite3.IntegrityError:
-            # May cause problems with hyperthreading stuff
-            self.connection.rollback()
-            return -1
 
         # Commit changes to the db
         self.connection.commit()
@@ -81,66 +79,47 @@ class DatabaseHandler:
         return school_id
 
     def user_nickname_update(self, vk_id, nickname):
-        # Updates persons nickname if vk_id is here, creates an entry otherwise
-        try:
-            cmd1 = f"SELECT vk_id FROM users WHERE vk_id LIKE {vk_id}"
-            self.cursor.execute(cmd1)
-            results = self.cursor.fetchall()
-            print(results)
-            if not results:
-                cmd2 = f"INSERT INTO users (vk_id, nickname) VALUES ({vk_id},'{nickname}')"
-                self.cursor.execute(cmd2)
-                self.connection.commit()
-            else:
-                cmd2 = f"UPDATE users SET nickname='{nickname}' WHERE vk_id={vk_id}"
-                self.cursor.execute(cmd2)
-                self.connection.commit()
-            return True
-        except:
-            print(f"Проблемы в user_nickname_update(vk_id={vk_id}, nickname={nickname})")
-            return -1
+        # Updates users nickname if vk_id is here, creates an entry otherwise.
+
+        # Check if entry is presented
+        cmd1 = f"SELECT vk_id FROM users WHERE vk_id LIKE {vk_id}"
+        self.cursor.execute(cmd1)
+        results = self.cursor.fetchall()
+
+        # print(results)
+        if not results:
+            cmd2 = f"INSERT INTO users (vk_id, nickname) VALUES ({vk_id},'{nickname}')"
+        else:
+            cmd2 = f"UPDATE users SET nickname='{nickname}' WHERE vk_id={vk_id}"
+        self.cursor.execute(cmd2)
+        self.connection.commit()
 
     def add_user(self, vk_id, school_id, inviter_id):
         # Add user to school (give him the role of Reader (1))
 
-        try:
-            # Check whether the invitee is registered
-            if not self.user_check(vk_id):
-                return -3
+        # Check whether the entry is presented and return -2 in that case
+        if self.user_in_school_check(vk_id, school_id):
+            raise Exception(
+                f"Пользователь '{self.fetch_user_name(vk_id)}' уже в составе '{self.fetch_school_name(school_id)}'.")
 
-            # Check whether the entry is presented and return -2 in that case
-            if self.user_in_school_check(vk_id, school_id):
-                return -2
+        # Check whether the invitee is registered
+        if not self.user_check(vk_id):
+            raise Exception(f"Пользователь @id{vk_id} не зарегистрирован в системе.")
 
-            # Check whether the inviter is atleast member of school
-            if not self.user_in_school_check(inviter_id, school_id):
-                return -4
-
-            # Execute, return True on success
-            cmd4 = f"INSERT INTO roles_membership (vk_id, role_id, school_id) VALUES ({vk_id}, {5}, {school_id})"
-            self.cursor.execute(cmd4)
-            self.connection.commit()
-            return True
-        except Exception as e:
-            print(
-                f"{'=' * 25 + ' ' + 'EXCEPTION OCCURED' + ' ' + '=' * 25}\nIt says: {e}\n{'=' * (50 + len('EXCEPTION OCCURED') + 2)}")
-            return -1
+        # Execute
+        cmd4 = f"INSERT INTO roles_membership (vk_id, role_id, school_id) VALUES ({vk_id}, {5}, {school_id})"
+        self.cursor.execute(cmd4)
+        self.connection.commit()
 
     def create_group(self, group_name, school_id, user_id):
         # Create the group and return its group_id
-        # GROUPS WITH SAME SCHOOL_ID AND GROUP_NAME ARE PROHIBITED
-
-        # Check whether the creator is atleast member of school
-        # TODO: Upgrade that to role check? -- Maybe yes.
-        if not self.user_in_school_check(user_id, school_id):
-            return -4
 
         # Check whether there is already group with that name
         cmd2 = f"SELECT * FROM groups WHERE school_id LIKE {school_id} AND group_name LIKE '{group_name}'"
         self.cursor.execute(cmd2)
         res = self.cursor.fetchall()
         if res:
-            return -5
+            raise Exception(f"Группа с таким именем в этой школе уже существует.")
 
         # Create group
         cmd3 = f"INSERT INTO groups (school_id, group_name) VALUES ({school_id}, '{group_name}')"
@@ -155,51 +134,42 @@ class DatabaseHandler:
         group_id = res[0][0]
 
         # Add creator to group
-        cmd3 = f"INSERT INTO groups_membership (vk_id, id) VALUES ({user_id}, '{group_id}')"
-        self.cursor.execute(cmd3)
-        self.connection.commit()
+        self.add_to_group(group_id, user_id, user_id)
 
         return group_id
 
     def add_to_group(self, group_id, vk_id, user_id):
-        # Adds vk_id to group_id if user_id has a permission to.
+        # Add vk_id to group if user_id has a permission to.
 
-        # Check whether the inviter is atleast member of school
-        # TODO: Upgrade that to role check?
-        try:
-            # Is person even there?
-            if not self.user_check(vk_id):
-                return -3
-            if not self.user_check(user_id):
-                return -4
-            cmd1 = f"SELECT * FROM groups WHERE group_id LIKE {group_id}"
-            self.cursor.execute(cmd1)
-            res = self.cursor.fetchall()
-            # Is group even there? + fetch school_id
-            if not res:
-                return -4
-            group_school_id = res[0][1]
+        # Check correctness of vk_id.
+        if not self.user_check(vk_id):
+            raise Exception(f"Пользователь @id{vk_id} не зарегистрирован в системе.")
 
-            # Is group even in the same school as user_id is?
-            if not self.user_in_school_check(vk_id, group_school_id) or not self.user_in_school_check(user_id,
-                                                                                                      group_school_id):
-                return -4
+        # Check if user already is in the group.
+        cmd2 = f"SELECT * FROM groups_membership WHERE vk_id LIKE {vk_id} AND group_id LIKE {group_id}"
+        self.cursor.execute(cmd2)
+        res = self.cursor.fetchall()
+        if res:
+            raise Exception(f"Пользователь уже в составе группы.")
 
-            # Maybe vk_id is already there?
-            cmd2 = f"SELECT * FROM groups_membership WHERE vk_id LIKE {vk_id} AND group_id LIKE {group_id}"
-            self.cursor.execute(cmd2)
-            res = self.cursor.fetchall()
-            if res:
-                return -5
+        # Check permission.
+        if not self.fetch_user_school_role(self.fetch_group_school(group_id), user_id) <= 3:
+            raise Exception(f"У вас недостаточно прав.")
 
-            # Act.
-            cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
-            self.cursor.execute(cmd3)
-            self.connection.commit()
+        # Check group existence and fetch school_id.
+        school_id = self.fetch_group_school(group_id)
+        if not school_id:
+            raise Exception(f"Группы с group_id {group_id} в данной школе нет.")
 
-            return True
-        except:
-            return -1
+        # Check if both user_id and vk_id are in the same school as the group in.
+        # todo: that one's sketchy
+        if not self.user_in_school_check(vk_id, school_id) or not self.user_in_school_check(user_id, school_id):
+            raise Exception(f"Чтобы пригласить этого человека в группу, вы должны быть в составе одной школы.")
+
+        # Act.
+        cmd3 = f"INSERT INTO groups_membership (vk_id, group_id) VALUES ({vk_id},{group_id})"
+        self.cursor.execute(cmd3)
+        self.connection.commit()
 
     def school_check(self, school_id):
         # Check whether a school exists
@@ -239,31 +209,17 @@ class DatabaseHandler:
         else:
             return False
 
-    def update_role(self, school_id, vk_id, new_role_id, user_id):
+    def update_role(self, school_id, vk_id, new_role_id):
         # Update role of user with vk_id with accordance to user_id permissions
 
-        # Check whether school exists
-        if not self.school_check(school_id):
-            return -5
-        # Check whether user exists in school or not
-        if not self.user_in_school_check(vk_id, school_id):
-            return -2
-        # Check whether user exists in school or not
-        if not self.user_in_school_check(user_id, school_id):
-            return -2
         # Check whether the role exists or not
         if not self.role_check(new_role_id):
-            return -3
-        # Permission check
-        user_role_id = self.fetch_user_school_role(school_id, user_id)
-        if int(new_role_id) <= int(user_role_id):
-            return -4
+            raise Exception(f"Неверная роль (role_id:{new_role_id})")
 
         # Execution
         cmd = f"UPDATE roles_membership SET role_id={new_role_id} WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
         self.cursor.execute(cmd)
         self.connection.commit()
-        return True
 
     def remove_user(self, school_id, target_id, user_id):
         # TODO: REFACTOR THIS PIECE OF SHUTTLECOCK
@@ -289,26 +245,15 @@ class DatabaseHandler:
         self.connection.commit()
         return True
 
-    def remove_from_group(self, school_id, group_id, target_id, user_id):
-        # Check whether school exists
-        if not self.school_check(school_id):
-            return -5
-        # Check whether user exists in school or not
-        if not self.user_in_school_check(target_id, school_id):
-            return -21
-        # Check whether user exists in school or not
-        if not self.user_in_school_check(user_id, school_id):
-            return -22
+    def remove_from_group(self, group_id, target_id):
+        # Remove user from group
+
         # Check whether a target is a part of a group
         cmd = f"SELECT * FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
         self.cursor.execute(cmd)
         res = self.cursor.fetchall()
         if not res:
-            return -3
-        # Permission check
-        user_role_id = self.fetch_user_school_role(school_id, user_id)
-        if user_role_id > 3:  # (must be a Teacher or higher)
-            return -1
+            raise Exception("Пользователь не состоит в группе.")
 
         cmd = f"DELETE FROM groups_membership WHERE vk_id LIKE {target_id} AND group_id LIKE {group_id}"
         self.cursor.execute(cmd)
@@ -321,7 +266,7 @@ class DatabaseHandler:
         cmd = f"SELECT school_name FROM schools WHERE school_id LIKE {school_id}"
         self.cursor.execute(cmd)
         res = self.cursor.fetchall()
-        school_name = res[0][0]
+        school_name = res[0][0] if res else ''
         return school_name
 
     def fetch_school_members(self, school_id):
@@ -353,6 +298,11 @@ class DatabaseHandler:
 
     def fetch_user_school_role(self, school_id, vk_id):
         # Return users role_id in the school
+
+        # Check if school exists.
+        if not self.fetch_school_name(school_id):
+            raise Exception(f"Школы с school_id {school_id} не существует.")
+
         cmd1 = f"SELECT role_id FROM roles_membership WHERE vk_id LIKE {vk_id} AND school_id LIKE {school_id}"
         self.cursor.execute(cmd1)
         res = self.cursor.fetchall()
@@ -410,7 +360,9 @@ class DatabaseHandler:
 
     def fetch_user_schools(self, user_id, level=5):
         # Good method.
-        # Returns array of school_ids person is in.
+        # Returns array of schools user is in.
+        if not self.user_check(user_id):
+            raise Exception(f"Пользователь @id{user_id} не зарегистрирован в системе.")
         cmd = f"SELECT * FROM roles_membership WHERE vk_id LIKE {user_id}"
         self.cursor.execute(cmd)
         school_ids = [x[2] for x in self.cursor.fetchall()]
@@ -494,7 +446,7 @@ class DatabaseHandler:
 
     def remove_user_from_school(self, school_id, target_id):
         # Remove user from school in roles_membership.
-        # ! You must remove person from the school groups.
+
         # 1.) Fetch school groups
         school_groups_ids = [x[0] for x in self.fetch_school_groups(school_id)]
         # 2.) Remove from school groups
@@ -504,7 +456,6 @@ class DatabaseHandler:
         cmd = f"DELETE FROM roles_membership WHERE school_id LIKE {school_id} AND vk_id LIKE {target_id}"
         self.cursor.execute(cmd)
         self.connection.commit()
-        return True
 
     def delete_group(self, group_id):
         # Delete group.
@@ -534,7 +485,6 @@ class DatabaseHandler:
         self.connection.commit()
         return True
 
-    # TODO: maybe rework several fetch_X's_Y(X_id) functions to fetch_X's(X_id, Ys)
     def fetch_group_school(self, group_id):
         # Returns id of a school to which group_id group belongs
         cmd = f"SELECT school_id FROM groups where group_id LIKE {group_id}"
@@ -543,7 +493,7 @@ class DatabaseHandler:
         if res:
             return res[0][0]
         else:
-            return False
+            raise Exception(f"Группы с group_id ({group_id}) не существует.")
 
     def fetch_roles(self, level=5):
         # Returns list with roles entries
