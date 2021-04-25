@@ -70,6 +70,10 @@ class VkApiHandler:
             if self.debug:
                 print(longPoll)
 
+            if not 'updates' in longPoll:
+                if longPoll['failed']:
+                    break
+            
             if longPoll['updates'] and len(longPoll['updates']) != 0:
                 for update in longPoll['updates']:
                     if update['type'] == 'message_new':
