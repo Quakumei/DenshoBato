@@ -8,7 +8,7 @@ from DatabaseHandler import *
 from CodeList import CODE_DICT, DB_NAME
 
 # Vk API info
-ACCESS_TOKEN = '0405278c1d9aa5b5962e158cfc6e036ebb3703d671d5042df8d9d807e1a6cbbb577effb424664c474efe6'
+ACCESS_TOKEN = ''
 API_VERSION = '5.130'
 GROUP_ID = 199935063
 
