@@ -1,6 +1,6 @@
 # DenshoBato - чат-бот ВКонтакте для коммуникации учителей и учеников.
 
-На данный момент бот _не_ работает в группе [DenshoBato](https://vk.com/denshobato). Если бот вам не отвечает, пишите автору. 
+### На данный момент бот прекратил свою работу. Раньше работал в [DenshoBato](https://vk.com/denshobato).
 
 ## Как запустить?
 
@@ -30,7 +30,7 @@
 
 Илья Тампио
 
-Telegram: [@quakumei](https://t.me/quakumei) (ник: yasumi404)
+Telegram: [@Quakumei](https://t.me/quakumei)
 
 VK: [@druzhelubnyy](https://vk.com/id388032588)
 
